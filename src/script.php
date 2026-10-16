@@ -115,7 +115,7 @@ return new class () implements InstallerScriptInterface {
             // on for the whole Joomla API, not just this endpoint. The dashboard health check reports
             // them, so an admin can turn them on deliberately if they want API tokens instead of OAuth.
             $plugins = [
-                ['webservices', 'mcp'], ['system', 'mcp'], ['mcp', 'content'], ['mcp', 'stats'], ['mcp', 'menus'], ['mcp', 'modules'], ['mcp', 'akeeba'], ['mcp', 'flexicontent'], ['mcp', 'easyblog'], ['mcp', 'jreviews'], ['mcp', 'mcpask'], ['mcp', 'jlexhelpful'], ['mcp', 'media'],
+                ['webservices', 'mcp'], ['system', 'mcp'], ['mcp', 'content'], ['mcp', 'stats'], ['mcp', 'menus'], ['mcp', 'modules'], ['mcp', 'akeeba'], ['mcp', 'flexicontent'], ['mcp', 'easyblog'], ['mcp', 'jreviews'], ['mcp', 'jlexhelpful'], ['mcp', 'media'],
             ];
         } else {
             $plugins = [];
@@ -143,7 +143,6 @@ return new class () implements InstallerScriptInterface {
             }
 
             if ($this->previousVersion !== '' && version_compare($this->previousVersion, '0.8.0', '<')) {
-                $plugins[] = ['mcp', 'mcpask'];
                 $plugins[] = ['mcp', 'jlexhelpful'];
             }
 

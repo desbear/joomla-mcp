@@ -31,31 +31,5 @@ sync_plugin mcp akeeba plg_mcp_akeeba
 sync_plugin mcp flexicontent plg_mcp_flexicontent
 sync_plugin mcp easyblog plg_mcp_easyblog
 sync_plugin mcp jreviews plg_mcp_jreviews
-sync_plugin mcp mcpask plg_mcp_mcpask
 sync_plugin mcp jlexhelpful plg_mcp_jlexhelpful
 sync_plugin mcp media plg_mcp_media
-# Ask the Site (pkg_mcpask)
-rsync -a --delete src/com_mcpask/administrator/ "$SITE/administrator/components/com_mcpask/" --exclude language
-rsync -a --delete src/com_mcpask/site/ "$SITE/components/com_mcpask/" --exclude language
-rsync -a --delete src/com_mcpask/media/ "$SITE/media/com_mcpask/"
-cp src/com_mcpask/mcpask.xml "$SITE/administrator/components/com_mcpask/mcpask.xml"
-rsync -a --delete src/mod_mcp_ask/ "$SITE/modules/mod_mcp_ask/" --exclude language --exclude media
-rsync -a --delete src/mod_mcp_ask/media/ "$SITE/media/mod_mcp_ask/"
-rsync -a --delete src/mod_mcp_ask_log/ "$SITE/administrator/modules/mod_mcp_ask_log/" --exclude language
-for tag in en-GB zh-TW; do
-  cp src/com_mcpask/administrator/language/$tag/* src/mod_mcp_ask_log/language/$tag/* "$SITE/administrator/language/$tag/"
-  cp src/com_mcpask/site/language/$tag/* src/mod_mcp_ask/language/$tag/* "$SITE/language/$tag/"
-done
-sync_plugin content mcpask plg_content_mcpask
-sync_plugin task mcpask plg_task_mcpask
-sync_plugin mcpask rsform plg_mcpask_rsform
-sync_plugin mcpask livechat plg_mcpask_livechat
-# Guides (pkg_guides)
-rsync -a --delete src/com_guides/administrator/ "$SITE/administrator/components/com_guides/" --exclude language
-rsync -a --delete src/com_guides/media/ "$SITE/media/com_guides/"
-cp src/com_guides/guides.xml "$SITE/administrator/components/com_guides/guides.xml"
-rsync -a --delete src/mod_guides_review/ "$SITE/administrator/modules/mod_guides_review/" --exclude language
-for tag in en-GB zh-TW; do
-  cp src/com_guides/administrator/language/$tag/* src/mod_guides_review/language/$tag/* "$SITE/administrator/language/$tag/"
-done
-echo "Synced to $SITE"

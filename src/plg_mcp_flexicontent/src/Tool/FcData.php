@@ -499,7 +499,7 @@ final class FcData
             'date_to'               => ['type' => 'string', 'description' => 'YYYY-MM-DD, inclusive.'],
             'fields'                => [
                 'type'        => 'object',
-                'description' => 'Custom field conditions keyed by field name (see list_fields), e.g. {"product": "vital-crm"}. '
+                'description' => 'Custom field conditions keyed by field name (see list_fields), e.g. {"product": "acme-crm"}. '
                     . 'List fields match the option value or label exactly; other fields match text contained in the value. '
                     . 'An array matches any of the values.',
             ],

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form>
-	<field name="group" type="usergrouplist" required="true"
-		label="COM_MCPASK_CONFIG_GROUP_LIMIT_GROUP" />
-	<field name="per_minute" type="number" default="5" min="0" max="1000" filter="integer"
-		label="COM_MCPASK_CONFIG_PER_MINUTE" />
-	<field name="per_day" type="number" default="50" min="0" max="100000" filter="integer"
-		label="COM_MCPASK_CONFIG_PER_DAY" />
-</form>
