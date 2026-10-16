@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<inlinehelp button="show"/>
+	<fieldset name="server" label="COM_MCP_CONFIG_SERVER" addfieldprefix="Gss\Component\Mcp\Administrator\Field">
+		<field name="enabled" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCP_CONFIG_ENABLED" description="COM_MCP_CONFIG_ENABLED_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="read_only" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCP_CONFIG_READ_ONLY" description="COM_MCP_CONFIG_READ_ONLY_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="new_article_state" type="list" default="0" showon="read_only:0"
+			label="COM_MCP_CONFIG_NEW_ARTICLE_STATE" description="COM_MCP_CONFIG_NEW_ARTICLE_STATE_DESC">
+			<option value="0">JUNPUBLISHED</option>
+			<option value="1">JPUBLISHED</option>
+		</field>
+		<field name="allow_publish" type="radio" layout="joomla.form.field.radio.switcher" default="1" showon="read_only:0"
+			label="COM_MCP_CONFIG_ALLOW_PUBLISH" description="COM_MCP_CONFIG_ALLOW_PUBLISH_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="allow_delete" type="radio" layout="joomla.form.field.radio.switcher" default="0" showon="read_only:0"
+			label="COM_MCP_CONFIG_ALLOW_DELETE" description="COM_MCP_CONFIG_ALLOW_DELETE_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="allow_upload" type="radio" layout="joomla.form.field.radio.switcher" default="0" showon="read_only:0"
+			label="COM_MCP_CONFIG_ALLOW_UPLOAD" description="COM_MCP_CONFIG_ALLOW_UPLOAD_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="upload_extra_extensions" type="text" showon="read_only:0[AND]allow_upload:1"
+			label="COM_MCP_CONFIG_UPLOAD_EXTRA" description="COM_MCP_CONFIG_UPLOAD_EXTRA_DESC" />
+		<field name="allowed_categories" type="category" extension="com_content" multiple="true" layout="joomla.form.field.list-fancy-select"
+			label="COM_MCP_CONFIG_ALLOWED_CATEGORIES" description="COM_MCP_CONFIG_ALLOWED_CATEGORIES_DESC" />
+		<field name="max_limit" type="number" default="100" min="1" max="1000" filter="integer"
+			label="COM_MCP_CONFIG_MAX_LIMIT" description="COM_MCP_CONFIG_MAX_LIMIT_DESC" />
+	</fieldset>
+	<fieldset name="tools" label="COM_MCP_CONFIG_TOOLS" addfieldprefix="Gss\Component\Mcp\Administrator\Field">
+		<field name="disabled_tools" type="mcptools" multiple="true"
+			label="COM_MCP_CONFIG_DISABLED_TOOLS" description="COM_MCP_CONFIG_DISABLED_TOOLS_DESC" />
+	</fieldset>
+	<fieldset name="oauth" label="COM_MCP_CONFIG_OAUTH" description="COM_MCP_CONFIG_OAUTH_DESC">
+		<field name="oauth_enabled" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCP_CONFIG_OAUTH_ENABLED" description="COM_MCP_CONFIG_OAUTH_ENABLED_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="oauth_registration" type="radio" layout="joomla.form.field.radio.switcher" default="1" showon="oauth_enabled:1"
+			label="COM_MCP_CONFIG_OAUTH_REGISTRATION" description="COM_MCP_CONFIG_OAUTH_REGISTRATION_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="oauth_redirect_hosts" type="textarea" rows="7" filter="string" showon="oauth_enabled:1"
+			default="claude.ai&#10;claude.com&#10;chatgpt.com&#10;vscode.dev&#10;insiders.vscode.dev&#10;cursor://"
+			label="COM_MCP_CONFIG_OAUTH_HOSTS" description="COM_MCP_CONFIG_OAUTH_HOSTS_DESC" />
+		<field name="oauth_any_https" type="radio" layout="joomla.form.field.radio.switcher" default="0" showon="oauth_enabled:1"
+			label="COM_MCP_CONFIG_OAUTH_ANY_HTTPS" description="COM_MCP_CONFIG_OAUTH_ANY_HTTPS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="oauth_access_minutes" type="number" default="60" min="5" max="1440" filter="integer" showon="oauth_enabled:1"
+			label="COM_MCP_CONFIG_OAUTH_ACCESS" description="COM_MCP_CONFIG_OAUTH_ACCESS_DESC" />
+		<field name="oauth_refresh_days" type="number" default="30" min="1" max="365" filter="integer" showon="oauth_enabled:1"
+			label="COM_MCP_CONFIG_OAUTH_REFRESH" description="COM_MCP_CONFIG_OAUTH_REFRESH_DESC" />
+	</fieldset>
+	<fieldset name="logging" label="COM_MCP_CONFIG_LOGGING">
+		<field name="log_enabled" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCP_CONFIG_LOG_ENABLED" description="COM_MCP_CONFIG_LOG_ENABLED_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="log_arguments" type="radio" layout="joomla.form.field.radio.switcher" default="0" showon="log_enabled:1"
+			label="COM_MCP_CONFIG_LOG_ARGUMENTS" description="COM_MCP_CONFIG_LOG_ARGUMENTS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="log_retention_days" type="number" default="90" min="0" filter="integer" showon="log_enabled:1"
+			label="COM_MCP_CONFIG_LOG_RETENTION" description="COM_MCP_CONFIG_LOG_RETENTION_DESC" />
+	</fieldset>
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" filter="rules" validate="rules" component="com_mcp" section="component" />
+	</fieldset>
+</config>

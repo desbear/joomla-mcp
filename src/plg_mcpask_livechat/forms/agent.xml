@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fields name="own">
+		<fieldset name="own">
+			<field name="license" type="number" required="true" min="1" filter="integer" validate="number"
+				label="PLG_MCPASK_LIVECHAT_FIELD_LICENSE" description="PLG_MCPASK_LIVECHAT_FIELD_LICENSE_DESC" />
+			<field name="group" type="number" default="0" min="0" filter="integer" validate="number"
+				label="PLG_MCPASK_LIVECHAT_FIELD_GROUP" description="PLG_MCPASK_LIVECHAT_FIELD_GROUP_DESC" />
+			<field name="timezone" type="timezone" default=""
+				label="PLG_MCPASK_LIVECHAT_FIELD_TIMEZONE" description="PLG_MCPASK_LIVECHAT_FIELD_TIMEZONE_DESC">
+				<option value="">PLG_MCPASK_LIVECHAT_FIELD_TIMEZONE_SITE</option>
+			</field>
+			<field name="hours" type="subform" multiple="true" min="0" max="14" layout="joomla.form.field.subform.repeatable-table"
+				label="PLG_MCPASK_LIVECHAT_FIELD_HOURS" description="PLG_MCPASK_LIVECHAT_FIELD_HOURS_DESC"
+				default="{&quot;hours0&quot;: {&quot;days&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;], &quot;from&quot;: &quot;09:00&quot;, &quot;to&quot;: &quot;18:00&quot;}}">
+				<form>
+					<field name="days" type="checkboxes" label="PLG_MCPASK_LIVECHAT_FIELD_DAYS">
+						<option value="1">MONDAY</option>
+						<option value="2">TUESDAY</option>
+						<option value="3">WEDNESDAY</option>
+						<option value="4">THURSDAY</option>
+						<option value="5">FRIDAY</option>
+						<option value="6">SATURDAY</option>
+						<option value="7">SUNDAY</option>
+					</field>
+					<field name="from" type="text" default="09:00" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]" label="PLG_MCPASK_LIVECHAT_FIELD_FROM" hint="09:00" />
+					<field name="to" type="text" default="18:00" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]" label="PLG_MCPASK_LIVECHAT_FIELD_TO" hint="18:00" />
+				</form>
+			</field>
+			<field name="closed" type="textarea" rows="4" filter="string"
+				label="PLG_MCPASK_LIVECHAT_FIELD_CLOSED" description="PLG_MCPASK_LIVECHAT_FIELD_CLOSED_DESC" hint="2026-10-10 國慶日" />
+			<field name="carry" type="checkboxes" default="conversation,page,report" multiple="true"
+				label="PLG_MCPASK_LIVECHAT_FIELD_CARRY" description="PLG_MCPASK_LIVECHAT_FIELD_CARRY_DESC">
+				<option value="conversation">PLG_MCPASK_LIVECHAT_CARRY_CONVERSATION</option>
+				<option value="question">PLG_MCPASK_LIVECHAT_CARRY_QUESTION</option>
+				<option value="answer">PLG_MCPASK_LIVECHAT_CARRY_ANSWER</option>
+				<option value="page">PLG_MCPASK_LIVECHAT_CARRY_PAGE</option>
+				<option value="report">PLG_MCPASK_LIVECHAT_CARRY_REPORT</option>
+			</field>
+			<field name="online_text" type="textarea" rows="2" filter="string"
+				label="PLG_MCPASK_LIVECHAT_FIELD_ONLINE" description="PLG_MCPASK_LIVECHAT_FIELD_ONLINE_DESC" />
+			<field name="offline_text" type="textarea" rows="2" filter="string"
+				label="PLG_MCPASK_LIVECHAT_FIELD_OFFLINE" description="PLG_MCPASK_LIVECHAT_FIELD_OFFLINE_DESC" />
+		</fieldset>
+	</fields>
+</form>

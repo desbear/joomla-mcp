@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="module" client="site" method="upgrade">
+	<name>mod_mcp_ask</name>
+	<author>GSS</author>
+	<creationDate>2026-10</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.13.2</version>
+	<description>MOD_MCP_ASK_XML_DESCRIPTION</description>
+	<namespace path="src">Gss\Module\McpAsk</namespace>
+	<files>
+		<folder module="mod_mcp_ask">services</folder>
+		<folder>src</folder>
+		<folder>tmpl</folder>
+	</files>
+	<media destination="mod_mcp_ask" folder="media">
+		<filename>joomla.asset.json</filename>
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+		<folder>pets</folder>
+	</media>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/mod_mcp_ask.ini</language>
+		<language tag="en-GB">en-GB/mod_mcp_ask.sys.ini</language>
+		<language tag="zh-TW">zh-TW/mod_mcp_ask.ini</language>
+		<language tag="zh-TW">zh-TW/mod_mcp_ask.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="mode"
+					type="list"
+					label="MOD_MCP_ASK_FIELD_MODE_LABEL"
+					description="MOD_MCP_ASK_FIELD_MODE_DESC"
+					default="icon"
+					validate="options"
+				>
+					<option value="icon">MOD_MCP_ASK_FIELD_MODE_ICON</option>
+					<option value="box">MOD_MCP_ASK_FIELD_MODE_BOX</option>
+					<option value="float">MOD_MCP_ASK_FIELD_MODE_FLOAT</option>
+				</field>
+				<field
+					name="float_position"
+					type="list"
+					label="MOD_MCP_ASK_FIELD_FLOAT_LABEL"
+					description="MOD_MCP_ASK_FIELD_FLOAT_DESC"
+					default="bottom"
+					validate="options"
+					showon="mode:float"
+				>
+					<option value="top">MOD_MCP_ASK_FIELD_FLOAT_TOP</option>
+					<option value="middle">MOD_MCP_ASK_FIELD_FLOAT_MIDDLE</option>
+					<option value="bottom">MOD_MCP_ASK_FIELD_FLOAT_BOTTOM</option>
+				</field>
+				<field
+					name="pet"
+					type="mcpaskpet"
+					addfieldprefix="Gss\Component\Mcpask\Administrator\Field"
+					label="MOD_MCP_ASK_FIELD_PET_LABEL"
+					description="MOD_MCP_ASK_FIELD_PET_DESC"
+					default=""
+				/>
+				<field
+					name="align"
+					type="list"
+					label="MOD_MCP_ASK_FIELD_ALIGN_LABEL"
+					description="MOD_MCP_ASK_FIELD_ALIGN_DESC"
+					default="end"
+					validate="options"
+					showon="mode:icon"
+				>
+					<option value="end">MOD_MCP_ASK_FIELD_ALIGN_END</option>
+					<option value="start">MOD_MCP_ASK_FIELD_ALIGN_START</option>
+				</field>
+				<field
+					name="sources_shown"
+					type="number"
+					label="MOD_MCP_ASK_FIELD_SOURCES_SHOWN_LABEL"
+					description="MOD_MCP_ASK_FIELD_SOURCES_SHOWN_DESC"
+					default="3"
+					min="0"
+					max="50"
+					filter="integer"
+				/>
+				<field
+					name="title"
+					type="text"
+					label="MOD_MCP_ASK_FIELD_TITLE_LABEL"
+					description="MOD_MCP_ASK_FIELD_BLANK_DESC"
+					filter="string"
+				/>
+				<field
+					name="placeholder"
+					type="text"
+					label="MOD_MCP_ASK_FIELD_PLACEHOLDER_LABEL"
+					description="MOD_MCP_ASK_FIELD_BLANK_DESC"
+					filter="string"
+				/>
+				<field
+					name="theme"
+					type="list"
+					label="MOD_MCP_ASK_FIELD_THEME_LABEL"
+					description="MOD_MCP_ASK_FIELD_THEME_DESC"
+					default="site"
+				>
+					<option value="site">MOD_MCP_ASK_FIELD_THEME_SITE</option>
+					<option value="own">MOD_MCP_ASK_FIELD_THEME_OWN</option>
+				</field>
+				<field
+					name="accent"
+					type="color"
+					label="MOD_MCP_ASK_FIELD_ACCENT_LABEL"
+					description="MOD_MCP_ASK_FIELD_ACCENT_DESC"
+					format="hex"
+				/>
+				<field
+					name="demo"
+					type="radio"
+					label="MOD_MCP_ASK_FIELD_DEMO_LABEL"
+					description="MOD_MCP_ASK_FIELD_DEMO_DESC"
+					layout="joomla.form.field.radio.switcher"
+					default="0"
+					filter="integer"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					class="form-select"
+					validate="moduleLayout"
+				/>
+				<field
+					name="moduleclass_sfx"
+					type="textarea"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					rows="3"
+					validate="CssIdentifier"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

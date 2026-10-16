@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="mcp" method="upgrade">
+	<name>plg_mcp_akeeba</name>
+	<author>GSS</author>
+	<creationDate>2026-09</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.9.3</version>
+	<description>PLG_MCP_AKEEBA_XML_DESCRIPTION</description>
+	<namespace path="src">Gss\Plugin\Mcp\Akeeba</namespace>
+	<files>
+		<folder plugin="akeeba">services</folder>
+		<folder>src</folder>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="step_budget" type="number" default="20" min="5" max="55" filter="integer"
+					label="PLG_MCP_AKEEBA_STEP_BUDGET" description="PLG_MCP_AKEEBA_STEP_BUDGET_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/plg_mcp_akeeba.ini</language>
+		<language tag="en-GB">en-GB/plg_mcp_akeeba.sys.ini</language>
+		<language tag="zh-TW">zh-TW/plg_mcp_akeeba.ini</language>
+		<language tag="zh-TW">zh-TW/plg_mcp_akeeba.sys.ini</language>
+	</languages>
+</extension>

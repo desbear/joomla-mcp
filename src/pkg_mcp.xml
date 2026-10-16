@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" method="upgrade">
+	<name>pkg_mcp</name>
+	<packagename>mcp</packagename>
+	<author>GSS</author>
+	<creationDate>2026-09</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.9.3</version>
+	<description>PKG_MCP_XML_DESCRIPTION</description>
+	<packager>GSS</packager>
+	<scriptfile>script.php</scriptfile>
+	<blockChildUninstall>true</blockChildUninstall>
+	<files folder="packages">
+		<file type="component" id="com_mcp">com_mcp.zip</file>
+		<file type="plugin" id="mcp" group="webservices">plg_webservices_mcp.zip</file>
+		<file type="plugin" id="mcp" group="system">plg_system_mcp.zip</file>
+		<file type="plugin" id="content" group="mcp">plg_mcp_content.zip</file>
+		<file type="plugin" id="stats" group="mcp">plg_mcp_stats.zip</file>
+		<file type="plugin" id="menus" group="mcp">plg_mcp_menus.zip</file>
+		<file type="plugin" id="modules" group="mcp">plg_mcp_modules.zip</file>
+		<file type="plugin" id="akeeba" group="mcp">plg_mcp_akeeba.zip</file>
+		<file type="plugin" id="flexicontent" group="mcp">plg_mcp_flexicontent.zip</file>
+		<file type="plugin" id="easyblog" group="mcp">plg_mcp_easyblog.zip</file>
+		<file type="plugin" id="jreviews" group="mcp">plg_mcp_jreviews.zip</file>
+		<file type="plugin" id="mcpask" group="mcp">plg_mcp_mcpask.zip</file>
+		<file type="plugin" id="jlexhelpful" group="mcp">plg_mcp_jlexhelpful.zip</file>
+		<file type="plugin" id="media" group="mcp">plg_mcp_media.zip</file>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/pkg_mcp.sys.ini</language>
+		<language tag="zh-TW">zh-TW/pkg_mcp.sys.ini</language>
+	</languages>
+</extension>

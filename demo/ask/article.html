@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文章頁 - mod_mcp_ask 示範</title>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="../../src/mod_mcp_ask/media/css/ask.css">
+<script src="../../src/mod_mcp_ask/media/js/ask-reveal.js"></script>
+<script src="../../src/mod_mcp_ask/media/js/ask-demo.js" defer></script>
+<script src="../../src/mod_mcp_ask/media/js/ask.js" defer></script>
+</head>
+<body>
+<header class="site-head">
+  <a class="site-head__logo" href="index.html">示範官網</a>
+  <nav class="site-head__nav">
+    <a href="article.html?p=product">產品介紹</a>
+    <a href="article.html?p=pricing">方案與價格</a>
+    <a href="article.html?p=support">支援中心</a>
+  </nav>
+  <div class="mcp-ask" data-mcp-ask data-mode="icon" data-state="idle" data-ufo="../../src/mod_mcp_ask/media/images/ufo.png"
+       data-demo-sources='[{"title":"產品介紹","url":"article.html?p=product","section":"產品介紹 › 功能總覽"},{"title":"方案與價格","url":"article.html?p=pricing"},{"title":"支援中心：常見問題","url":"article.html?p=support"}]'
+       data-strings='{"title":"詢問官網內容","placeholder":"想了解什麼？","followup":"繼續追問…","empty":"想了解什麼？","send":"送出","close":"關閉","newChat":"新對話","resume":"開啟對話","sources":"資料來源","here":"這裡問","more":"顯示全部 %s 篇","less":"收合","searching":"正在搜尋官網內容…","note":"回答由 AI 產生，可能有誤，請以來源頁面為準。","noAnswer":"沒有取得回答，請再試一次。","error":"發生錯誤，請再試一次。","unconfigured":"問答服務尚未設定。"}'>
+    <form class="mcp-ask__form" role="search">
+      <button type="button" class="mcp-ask__toggle" aria-label="詢問官網內容" aria-expanded="false">
+        <svg class="mcp-ask__ai" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.2l-4.3 3.4V17H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z"/><path class="mcp-ask__spark" d="M10.4 6.9c.38 2.07 1.45 3.14 3.5 3.5-2.05.37-3.12 1.44-3.5 3.5-.37-2.06-1.44-3.13-3.5-3.5 2.06-.36 3.13-1.43 3.5-3.5z"/><path class="mcp-ask__spark mcp-ask__spark--small" d="M16.1 6.2c.18.95.66 1.43 1.6 1.6-.94.18-1.42.66-1.6 1.6-.17-.94-.65-1.42-1.6-1.6.95-.17 1.43-.65 1.6-1.6z"/></svg>
+      </button>
+      <input class="mcp-ask__input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" maxlength="500" placeholder="想了解什麼？" aria-label="想了解什麼？">
+      <span class="mcp-ask-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <button type="submit" class="mcp-ask__submit" aria-label="送出">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+    </form>
+    <span class="mcp-ask__status" role="status"></span>
+  </div>
+</header>
+
+<main class="site-main">
+  <article class="site-article">
+    <p class="site-article__crumb"><a href="index.html">首頁</a> › <span id="crumb">文章</span></p>
+    <h1 id="title">文章</h1>
+    <p>這是來源頁面的示範內容。從對話中點選來源後，對話會先收回搜尋圖示，接著以 View Transition 轉換到這一頁。</p>
+    <p>點右上角的搜尋圖示（有圓點表示有進行中的對話）可以回到剛才的對話繼續追問。</p>
+    <h2>功能總覽</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet.</p>
+    <p>Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla.</p>
+  </article>
+</main>
+<script>
+  const titles = { product: '產品介紹', pricing: '方案與價格', support: '支援中心：常見問題' };
+  const title = titles[new URLSearchParams(location.search).get('p')] || '文章';
+  document.getElementById('title').textContent = title;
+  document.getElementById('crumb').textContent = title;
+</script>
+</body>
+</html>

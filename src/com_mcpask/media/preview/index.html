@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask the Site - preview</title>
+<style>
+  /* A plain page standing in for the site, so the module is seen as visitors see it */
+  body { margin: 0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #222; background: #f3f4f6; }
+  .site-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+  .site-header strong { font-size: 18px; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 24px 120px; }
+  main h1 { font-size: 24px; margin: 0 0 12px; }
+  main p { color: #555; }
+  .preview-box { margin: 24px 0; }
+</style>
+</head>
+<body>
+<header class="site-header"><strong>網站名稱</strong><span id="preview-icon"></span></header>
+<main>
+  <h1>產品說明</h1>
+  <p>這是預覽用的頁面，呈現詢問官網內容在網站上的樣子：右上角的圖示、文章中的搜尋框，以及右下角的浮動按鈕。</p>
+  <div class="preview-box" id="preview-box"></div>
+  <p>對話畫面打開時會蓋住整個頁面；關閉後可以看到按鈕與搜尋框。</p>
+</main>
+<div id="preview-float"></div>
+<script src="preview.js"></script>
+</body>
+</html>

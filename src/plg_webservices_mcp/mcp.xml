@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="webservices" method="upgrade">
+	<name>plg_webservices_mcp</name>
+	<author>GSS</author>
+	<creationDate>2026-09</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.9.3</version>
+	<description>PLG_WEBSERVICES_MCP_XML_DESCRIPTION</description>
+	<namespace path="src">Gss\Plugin\WebServices\Mcp</namespace>
+	<files>
+		<folder plugin="mcp">services</folder>
+		<folder>src</folder>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/plg_webservices_mcp.ini</language>
+		<language tag="en-GB">en-GB/plg_webservices_mcp.sys.ini</language>
+		<language tag="zh-TW">zh-TW/plg_webservices_mcp.ini</language>
+		<language tag="zh-TW">zh-TW/plg_webservices_mcp.sys.ini</language>
+	</languages>
+</extension>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" method="upgrade">
+	<name>com_mcpask</name>
+	<author>GSS</author>
+	<creationDate>2026-10</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.13.2</version>
+	<description>COM_MCPASK_XML_DESCRIPTION</description>
+	<namespace path="src">Gss\Component\Mcpask</namespace>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+			<file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+			<file driver="postgresql" charset="utf8">sql/uninstall.postgresql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+			<schemapath type="postgresql">sql/updates/postgresql</schemapath>
+		</schemas>
+	</update>
+
+	<files folder="site">
+		<folder>src</folder>
+		<folder>tmpl</folder>
+	</files>
+	<languages folder="site/language">
+		<language tag="en-GB">en-GB/com_mcpask.ini</language>
+		<language tag="zh-TW">zh-TW/com_mcpask.ini</language>
+	</languages>
+
+	<media destination="com_mcpask" folder="media">
+		<folder>css</folder>
+		<folder>js</folder>
+		<folder>preview</folder>
+	</media>
+
+	<administration>
+		<menu img="class:comments">COM_MCPASK</menu>
+		<submenu>
+			<menu link="option=com_mcpask&amp;view=dashboard">COM_MCPASK_SUBMENU_DASHBOARD</menu>
+			<menu link="option=com_mcpask&amp;view=quality">COM_MCPASK_SUBMENU_QUALITY</menu>
+			<menu link="option=com_mcpask&amp;view=agents">COM_MCPASK_SUBMENU_AGENTS</menu>
+			<menu link="option=com_mcpask&amp;view=handoffs">COM_MCPASK_SUBMENU_HANDOFFS</menu>
+			<menu link="option=com_mcpask&amp;view=appearance">COM_MCPASK_SUBMENU_APPEARANCE</menu>
+			<menu link="option=com_mcpask&amp;view=pets">COM_MCPASK_SUBMENU_PETS</menu>
+			<menu link="option=com_mcpask&amp;view=embeds">COM_MCPASK_SUBMENU_EMBEDS</menu>
+		</submenu>
+		<files folder="administrator">
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<folder>forms</folder>
+			<folder>layouts</folder>
+			<folder>services</folder>
+			<folder>sql</folder>
+			<folder>src</folder>
+			<folder>tmpl</folder>
+		</files>
+		<languages folder="administrator/language">
+			<language tag="en-GB">en-GB/com_mcpask.ini</language>
+			<language tag="en-GB">en-GB/com_mcpask.sys.ini</language>
+			<language tag="zh-TW">zh-TW/com_mcpask.ini</language>
+			<language tag="zh-TW">zh-TW/com_mcpask.sys.ini</language>
+		</languages>
+	</administration>
+</extension>

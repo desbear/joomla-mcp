@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" method="upgrade">
+	<name>pkg_mcpask</name>
+	<packagename>mcpask</packagename>
+	<author>GSS</author>
+	<creationDate>2026-10</creationDate>
+	<copyright>(C) 2026 GSS</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<version>0.13.2</version>
+	<description>PKG_MCPASK_XML_DESCRIPTION</description>
+	<packager>GSS</packager>
+	<scriptfile>script.php</scriptfile>
+	<blockChildUninstall>true</blockChildUninstall>
+	<files folder="packages">
+		<file type="component" id="com_mcpask">com_mcpask.zip</file>
+		<file type="module" id="mod_mcp_ask" client="site">mod_mcp_ask.zip</file>
+		<file type="module" id="mod_mcp_ask_log" client="administrator">mod_mcp_ask_log.zip</file>
+		<file type="plugin" id="mcpask" group="content">plg_content_mcpask.zip</file>
+		<file type="plugin" id="mcpask" group="task">plg_task_mcpask.zip</file>
+		<file type="plugin" id="mcpask" group="easyblog">plg_easyblog_mcpask.zip</file>
+		<file type="plugin" id="rsform" group="mcpask">plg_mcpask_rsform.zip</file>
+		<file type="plugin" id="livechat" group="mcpask">plg_mcpask_livechat.zip</file>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/pkg_mcpask.sys.ini</language>
+		<language tag="zh-TW">zh-TW/pkg_mcpask.sys.ini</language>
+	</languages>
+</extension>

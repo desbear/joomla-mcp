@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Gss\Component\Guides\Administrator\Field">
+	<fieldset name="guide">
+		<field name="title" type="text" required="true" maxlength="255" filter="string"
+			label="COM_GUIDES_TITLE" />
+		<field name="summary" type="textarea" rows="2" maxlength="1000" filter="string"
+			label="COM_GUIDES_SUMMARY" description="COM_GUIDES_SUMMARY_DESC" />
+		<field name="prerequisites" type="textarea" rows="3" maxlength="2000" filter="string"
+			label="COM_GUIDES_PREREQUISITES" description="COM_GUIDES_PREREQUISITES_DESC" />
+		<field name="verify" type="textarea" rows="2" maxlength="1000" filter="string"
+			label="COM_GUIDES_VERIFY" description="COM_GUIDES_VERIFY_DESC" />
+	</fieldset>
+	<fieldset name="placement">
+		<field name="product" type="text" maxlength="100" filter="string"
+			label="COM_GUIDES_PRODUCT" description="COM_GUIDES_PRODUCT_DESC" />
+		<field name="language" type="contentlanguage" default="*"
+			label="JFIELD_LANGUAGE_LABEL">
+			<option value="*">JALL</option>
+		</field>
+		<field name="target_type" type="list" default="content"
+			label="COM_GUIDES_CONFIG_TARGET">
+			<option value="content">COM_GUIDES_TARGET_CONTENT</option>
+			<option value="flexicontent">COM_GUIDES_TARGET_FLEXICONTENT</option>
+		</field>
+		<field name="fc_type" type="guidesfctype" default="0" showon="target_type:flexicontent"
+			label="COM_GUIDES_CONFIG_FC_TYPE" />
+		<field name="catid" type="category" extension="com_content" default="0"
+			label="JCATEGORY">
+			<option value="0">JSELECT</option>
+		</field>
+		<field name="tags" type="tag" mode="nested" multiple="true" custom="deny"
+			label="JTAG" />
+		<field name="next_guide_id" type="sql" default="0"
+			query="SELECT id AS value, title AS text FROM #__guides_guides ORDER BY title"
+			label="COM_GUIDES_NEXT" description="COM_GUIDES_NEXT_DESC">
+			<option value="0">JNONE</option>
+		</field>
+	</fieldset>
+</form>

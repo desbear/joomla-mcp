@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<inlinehelp button="show"/>
+	<fieldset name="service" label="COM_MCPASK_CONFIG_SERVICE" description="COM_MCPASK_CONFIG_SERVICE_DESC">
+		<field name="enabled" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_ENABLED" description="COM_MCPASK_CONFIG_ENABLED_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="access" type="accesslevel" default="1"
+			label="COM_MCPASK_CONFIG_ACCESS" description="COM_MCPASK_CONFIG_ACCESS_DESC" />
+		<field name="api_key" type="password" filter="raw" autocomplete="off" maxlength="999"
+			label="COM_MCPASK_CONFIG_API_KEY" description="COM_MCPASK_CONFIG_API_KEY_DESC" />
+		<field name="chat_model" type="text" default="gpt-4.1-mini" filter="string"
+			label="COM_MCPASK_CONFIG_CHAT_MODEL" description="COM_MCPASK_CONFIG_CHAT_MODEL_DESC" />
+		<field name="reasoning_effort" type="list" default="" validate="options"
+			label="COM_MCPASK_CONFIG_REASONING" description="COM_MCPASK_CONFIG_REASONING_DESC">
+			<option value="">COM_MCPASK_CONFIG_REASONING_NONE</option>
+			<option value="minimal">minimal</option>
+			<option value="low">low</option>
+			<option value="medium">medium</option>
+		</field>
+		<field name="max_output_tokens" type="number" default="900" min="100" max="4000" filter="integer"
+			label="COM_MCPASK_CONFIG_MAX_OUTPUT" description="COM_MCPASK_CONFIG_MAX_OUTPUT_DESC" />
+		<field name="embedding_model" type="text" default="text-embedding-3-small" filter="string"
+			label="COM_MCPASK_CONFIG_EMBEDDING_MODEL" description="COM_MCPASK_CONFIG_EMBEDDING_MODEL_DESC" />
+		<field name="embedding_dimensions" type="number" default="512" min="0" max="3072" filter="integer"
+			label="COM_MCPASK_CONFIG_DIMENSIONS" description="COM_MCPASK_CONFIG_DIMENSIONS_DESC" />
+		<field name="api_base" type="url" default="https://api.openai.com/v1" filter="url" validate="url"
+			label="COM_MCPASK_CONFIG_API_BASE" description="COM_MCPASK_CONFIG_API_BASE_DESC" />
+		<field name="api_style" type="list" default="responses" validate="options"
+			label="COM_MCPASK_CONFIG_API_STYLE" description="COM_MCPASK_CONFIG_API_STYLE_DESC">
+			<option value="responses">Responses API</option>
+			<option value="chat">Chat Completions API</option>
+		</field>
+		<field name="fallback_spacer" type="spacer" hr="true" />
+		<field name="fallback_enabled" type="radio" layout="joomla.form.field.radio.switcher" default="0"
+			label="COM_MCPASK_CONFIG_FALLBACK" description="COM_MCPASK_CONFIG_FALLBACK_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="fallback_api_base" type="url" filter="url" default="https://api.openai.com/v1" showon="fallback_enabled:1"
+			label="COM_MCPASK_CONFIG_FALLBACK_BASE" hint="https://api.openai.com/v1" />
+		<field name="fallback_api_key" type="password" filter="raw" autocomplete="off" maxlength="999" showon="fallback_enabled:1"
+			label="COM_MCPASK_CONFIG_FALLBACK_KEY" />
+		<field name="fallback_chat_model" type="text" filter="string" default="gpt-4.1-mini" showon="fallback_enabled:1"
+			label="COM_MCPASK_CONFIG_FALLBACK_MODEL" description="COM_MCPASK_CONFIG_FALLBACK_MODEL_DESC" />
+		<field name="fallback_api_style" type="list" default="responses" showon="fallback_enabled:1"
+			label="COM_MCPASK_CONFIG_FALLBACK_STYLE" description="COM_MCPASK_CONFIG_FALLBACK_STYLE_DESC">
+			<option value="responses">Responses API</option>
+			<option value="chat">Chat Completions API</option>
+		</field>
+		<field name="fallback_embeddings" type="radio" layout="joomla.form.field.radio.switcher" default="0" showon="fallback_enabled:1"
+			label="COM_MCPASK_CONFIG_FALLBACK_EMBEDDINGS" description="COM_MCPASK_CONFIG_FALLBACK_EMBEDDINGS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fieldset name="content" label="COM_MCPASK_CONFIG_CONTENT" description="COM_MCPASK_CONFIG_CONTENT_DESC"
+		addfieldprefix="Gss\Component\Mcpask\Administrator\Field">
+		<field name="categories" type="category" extension="com_content" multiple="true" layout="joomla.form.field.list-fancy-select"
+			label="COM_MCPASK_CONFIG_CATEGORIES" description="COM_MCPASK_CONFIG_CATEGORIES_DESC" />
+		<field name="include_fields" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_FIELDS" description="COM_MCPASK_CONFIG_FIELDS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="fields_only" type="mcpaskfields" multiple="true" layout="joomla.form.field.list-fancy-select" showon="include_fields:1"
+			label="COM_MCPASK_CONFIG_FIELDS_ONLY" description="COM_MCPASK_CONFIG_FIELDS_ONLY_DESC"
+			hint="COM_MCPASK_CONFIG_FIELDS_ONLY_HINT" />
+		<field name="include_easyblog" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_EASYBLOG" description="COM_MCPASK_CONFIG_EASYBLOG_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="index_on_save" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_ON_SAVE" description="COM_MCPASK_CONFIG_ON_SAVE_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="chunk_tokens" type="number" default="400" min="100" max="1500" filter="integer"
+			label="COM_MCPASK_CONFIG_CHUNK" description="COM_MCPASK_CONFIG_CHUNK_DESC" />
+	</fieldset>
+	<fieldset name="sites" label="COM_MCPASK_CONFIG_SITES" description="COM_MCPASK_CONFIG_SITES_DESC"
+		addfieldprefix="Gss\Component\Mcpask\Administrator\Field">
+		<field name="peers" type="subform" multiple="true" layout="joomla.form.field.subform.repeatable-table"
+			formsource="administrator/components/com_mcpask/forms/peer.xml" buttons="add,remove,move"
+			label="COM_MCPASK_CONFIG_PEERS" description="COM_MCPASK_CONFIG_PEERS_DESC" />
+		<field name="websites" type="subform" multiple="true" layout="joomla.form.field.subform.repeatable-table"
+			formsource="administrator/components/com_mcpask/forms/website.xml" buttons="add,remove,move"
+			label="COM_MCPASK_CONFIG_WEBSITES" description="COM_MCPASK_CONFIG_WEBSITES_DESC" />
+		<field name="export_key" type="mcpaskkey" filter="raw"
+			label="COM_MCPASK_CONFIG_EXPORT_KEY" description="COM_MCPASK_CONFIG_EXPORT_KEY_DESC" />
+	</fieldset>
+	<fieldset name="answer" label="COM_MCPASK_CONFIG_ANSWER">
+		<field name="top_k" type="number" default="8" min="1" max="20" filter="integer"
+			label="COM_MCPASK_CONFIG_TOP_K" description="COM_MCPASK_CONFIG_TOP_K_DESC" />
+		<field name="agent_steps" type="number" default="2" min="0" max="4" filter="integer"
+			label="COM_MCPASK_CONFIG_STEPS" description="COM_MCPASK_CONFIG_STEPS_DESC" />
+		<field name="page_context" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_PAGE_CONTEXT" description="COM_MCPASK_CONFIG_PAGE_CONTEXT_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="min_score" type="number" default="0.2" min="0" max="1" step="0.05" filter="float"
+			label="COM_MCPASK_CONFIG_MIN_SCORE" description="COM_MCPASK_CONFIG_MIN_SCORE_DESC" />
+		<field name="allowed_hosts" type="textarea" rows="6" filter="string"
+			default="vitalyun.com&#10;*.vitalyun.com&#10;gss.com.tw&#10;*.gss.com.tw&#10;gsscloud.com&#10;*.gsscloud.com"
+			label="COM_MCPASK_CONFIG_ALLOWED_HOSTS" description="COM_MCPASK_CONFIG_ALLOWED_HOSTS_DESC" />
+		<field name="hint_score" type="number" default="0.5" min="0.3" max="0.95" step="0.01" filter="float"
+			label="COM_MCPASK_CONFIG_HINT_SCORE" description="COM_MCPASK_CONFIG_HINT_SCORE_DESC" />
+		<field name="howto_template" type="textarea" rows="8" filter="string"
+			default="這是在問如何操作。請這樣回答：&#10;1. 先用一句話說明會完成什麼。&#10;2. 若來源有前置條件，先列出。&#10;3. 依來源教學的原始順序列出步驟，用 1. 2. 3. 編號。不可調整順序，不可合併或省略來源中的步驟，每一步句尾標註引用 [n]。&#10;4. 若來源說明了如何確認完成，最後列出。&#10;5. 若有「下一份」教學且與問題相關，最後一句提示可以接著看哪一份。&#10;6. 來源只有部分步驟時，只列出有根據的部分，明確說明哪裡沒有涵蓋，並建議透過網站的支援管道詢問。不可自行補上步驟。&#10;7. 若問題只問其中某一步，先直接回答那一步，再從第 1 步依序列到那一步，讓訪客知道怎麼走到那裡；之後的步驟不必列出。&#10;8. 來源某一步附有截圖 ![說明](/路徑) 時，把它原樣放在該步驟之後，路徑一字不改；來源沒有的圖片不可加入。"
+			label="COM_MCPASK_CONFIG_HOWTO_TEMPLATE" description="COM_MCPASK_CONFIG_HOWTO_TEMPLATE_DESC" />
+		<field name="howto_words" type="textarea" rows="4" filter="string"
+			label="COM_MCPASK_CONFIG_HOWTO_WORDS" description="COM_MCPASK_CONFIG_HOWTO_WORDS_DESC" />
+		<field name="instructions" type="textarea" rows="5" filter="string"
+			label="COM_MCPASK_CONFIG_INSTRUCTIONS" description="COM_MCPASK_CONFIG_INSTRUCTIONS_DESC" />
+	</fieldset>
+	<fieldset name="limits" label="COM_MCPASK_CONFIG_LIMITS" description="COM_MCPASK_CONFIG_LIMITS_DESC">
+		<field name="per_minute" type="number" default="5" min="1" max="1000" filter="integer"
+			label="COM_MCPASK_CONFIG_PER_MINUTE" description="COM_MCPASK_CONFIG_PER_MINUTE_DESC" />
+		<field name="per_day" type="number" default="50" min="1" max="100000" filter="integer"
+			label="COM_MCPASK_CONFIG_PER_DAY" description="COM_MCPASK_CONFIG_PER_DAY_DESC" />
+		<field name="group_limits" type="subform" multiple="true" layout="joomla.form.field.subform.repeatable-table"
+			formsource="administrator/components/com_mcpask/forms/grouplimit.xml" buttons="add,remove"
+			label="COM_MCPASK_CONFIG_GROUP_LIMITS" description="COM_MCPASK_CONFIG_GROUP_LIMITS_DESC" />
+		<field name="site_per_day" type="number" default="1000" min="1" max="10000000" filter="integer"
+			label="COM_MCPASK_CONFIG_SITE_PER_DAY" description="COM_MCPASK_CONFIG_SITE_PER_DAY_DESC" />
+		<field name="block_probes" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_BLOCK_PROBES" description="COM_MCPASK_CONFIG_BLOCK_PROBES_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="blocked_words" type="textarea" rows="4" filter="raw"
+			label="COM_MCPASK_CONFIG_BLOCKED_WORDS" description="COM_MCPASK_CONFIG_BLOCKED_WORDS_DESC" />
+		<field name="injection_patterns" type="textarea" rows="8" filter="raw"
+			label="COM_MCPASK_CONFIG_INJECTION_PATTERNS" description="COM_MCPASK_CONFIG_INJECTION_PATTERNS_DESC" />
+		<field name="strikes" type="number" default="5" min="0" max="1000" filter="integer"
+			label="COM_MCPASK_CONFIG_STRIKES" description="COM_MCPASK_CONFIG_STRIKES_DESC" />
+		<field name="trusted_proxies" type="textarea" rows="3" filter="string"
+			label="COM_MCPASK_CONFIG_TRUSTED_PROXIES" description="COM_MCPASK_CONFIG_TRUSTED_PROXIES_DESC" />
+		<field name="blocked_ips" type="textarea" rows="4" filter="string"
+			label="COM_MCPASK_CONFIG_BLOCKED_IPS" description="COM_MCPASK_CONFIG_BLOCKED_IPS_DESC" />
+		<field name="log_questions" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_LOG_QUESTIONS" description="COM_MCPASK_CONFIG_LOG_QUESTIONS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="log_who" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="COM_MCPASK_CONFIG_LOG_WHO" description="COM_MCPASK_CONFIG_LOG_WHO_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="log_days" type="number" default="30" min="1" max="3650" filter="integer"
+			label="COM_MCPASK_CONFIG_LOG_DAYS" description="COM_MCPASK_CONFIG_LOG_DAYS_DESC" />
+	</fieldset>
+	<fieldset name="images" label="COM_MCPASK_CONFIG_IMAGES" description="COM_MCPASK_CONFIG_IMAGES_DESC">
+		<field name="image_source" type="list" default="auto"
+			label="COM_MCPASK_CONFIG_IMAGE_SOURCE" description="COM_MCPASK_CONFIG_IMAGE_SOURCE_DESC">
+			<option value="auto">COM_MCPASK_CONFIG_IMAGE_SOURCE_AUTO</option>
+			<option value="own">COM_MCPASK_CONFIG_IMAGE_SOURCE_OWN</option>
+		</field>
+		<field name="image_provider" type="list" default="openai"
+			label="COM_MCPASK_CONFIG_IMAGE_PROVIDER">
+			<option value="openai">OpenAI</option>
+			<option value="openwebui">Open WebUI</option>
+		</field>
+		<field name="image_base" type="url" filter="url" hint="https://api.openai.com/v1"
+			label="COM_MCPASK_CONFIG_IMAGE_BASE" description="COM_MCPASK_CONFIG_IMAGE_BASE_DESC" />
+		<field name="image_key" type="password" filter="raw" autocomplete="off" maxlength="999"
+			label="COM_MCPASK_CONFIG_IMAGE_KEY" />
+		<field name="image_model" type="text" filter="string" hint="gpt-image-1"
+			label="COM_MCPASK_CONFIG_IMAGE_MODEL" description="COM_MCPASK_CONFIG_IMAGE_MODEL_DESC" />
+		<field name="image_quality" type="list" default="medium" showon="image_provider:openai"
+			label="COM_MCPASK_CONFIG_IMAGE_QUALITY">
+			<option value="low">low</option>
+			<option value="medium">medium</option>
+			<option value="high">high</option>
+		</field>
+	</fieldset>
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" filter="rules" validate="rules" component="com_mcpask" section="component" />
+	</fieldset>
+</config>

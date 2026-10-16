@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Gss\Component\Mcp\Administrator\Field">
+	<fields name="filter">
+		<field name="search" type="text" inputmode="search" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+		<field name="status" type="list" onchange="this.form.submit();" label="JSTATUS">
+			<option value="">COM_MCP_FILTER_STATUS</option>
+			<option value="success">COM_MCP_STATUS_SUCCESS</option>
+			<option value="error">COM_MCP_STATUS_ERROR</option>
+		</field>
+		<field name="user_id" type="user" onchange="this.form.submit();" label="JGLOBAL_FIELD_CREATED_BY_LABEL" />
+	</fields>
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="l.id DESC" label="JGLOBAL_SORT_BY">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="l.id DESC">COM_MCP_SORT_NEWEST</option>
+			<option value="l.id ASC">COM_MCP_SORT_OLDEST</option>
+			<option value="l.tool ASC">COM_MCP_SORT_TOOL</option>
+			<option value="l.duration_ms DESC">COM_MCP_SORT_SLOWEST</option>
+		</field>
+		<field name="limit" type="limitbox" default="25" onchange="this.form.submit();" label="JGLOBAL_LIST_LIMIT" />
+	</fields>
+</form>

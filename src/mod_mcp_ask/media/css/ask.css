@@ -1,0 +1,3163 @@
+/**
+ * @package     MCP Server for Joomla
+ * @subpackage  mod_mcp_ask
+ *
+ * @copyright   (C) 2026 GSS
+ * @license     GNU General Public License version 2 or later; see LICENSE
+ */
+
+/*
+ * Blocks: .mcp-ask (launcher), .mcp-ask-dots, .mcp-ask-chat (overlay), .mcp-ask-msg, .mcp-ask-cite, .mcp-ask-source.
+ * Not wrapped in @layer on purpose: a template's unlayered element styles would win over layered ones.
+ * Elements are nested under their block so they outrank template rules such as input[type="text"].
+ */
+
+.mcp-ask,
+.mcp-ask-chat {
+  /* Blue leads; purple and cyan only ever appear next to it, in gradients and glows */
+  --mcp-ask-accent: #1a5bff;
+  --mcp-ask-accent-2: #7f65ff;
+  --mcp-ask-accent-3: #00d4ff;
+  --mcp-ask-soft: #e6f0ff;
+  --mcp-ask-field: #f7faff;
+  --mcp-ask-text: #1b2233;
+  --mcp-ask-muted: #5b6474;
+  --mcp-ask-surface: #fff;
+  --mcp-ask-line: color-mix(in srgb, var(--mcp-ask-accent) 22%, var(--mcp-ask-soft));
+  --mcp-ask-tint: var(--mcp-ask-soft);
+  --mcp-ask-gradient: linear-gradient(135deg, var(--mcp-ask-accent), var(--mcp-ask-accent-2));
+  /* Surfaces inside the conversation are frosted: the page stays faintly visible through all of them */
+  --mcp-ask-glass: color-mix(in srgb, var(--mcp-ask-surface) 78%, transparent);
+  --mcp-ask-frost: blur(18px) saturate(1.5);
+  --mcp-ask-edge: inset 0 0 0 1px color-mix(in srgb, var(--mcp-ask-surface) 70%, transparent);
+  --mcp-ask-lift: 0 1px 2px color-mix(in srgb, var(--mcp-ask-accent) 8%, transparent),
+    0 10px 28px color-mix(in srgb, var(--mcp-ask-accent) 10%, transparent);
+  --mcp-ask-new: #ffd84d;
+  --mcp-ask-new-2: #ff9a3c;
+  /* Text on the accent colour, and the colours of what an answer may hold. A theme (see the
+     component's Appearance page) sets these, and the ones above, on the same elements. */
+  --mcp-ask-on-accent: #fff;
+  --mcp-ask-heading: var(--mcp-ask-text);
+  --mcp-ask-link: var(--mcp-ask-accent);
+  --mcp-ask-code: var(--mcp-ask-soft);
+  --mcp-ask-table-head: var(--mcp-ask-soft);
+  --mcp-ask-tip: #12a150;
+  --mcp-ask-warning: #e08a00;
+  --mcp-ask-danger: #b3261e;
+  --mcp-ask-ufo: clamp(130px, 20vw, 200px);
+  --mcp-ask-size: 44px;
+  --mcp-ask-width: 360px;
+  --mcp-ask-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  box-sizing: border-box;
+  color: var(--mcp-ask-text);
+  font-size: 16px;
+  line-height: 1.5;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  textarea {
+    appearance: none;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--mcp-ask-accent);
+    outline-offset: 2px;
+  }
+
+  svg {
+    display: block;
+    inline-size: 20px;
+    block-size: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+/* ---------- Launcher ---------- */
+
+.mcp-ask {
+  position: relative;
+  display: inline-block;
+  inline-size: var(--mcp-ask-size);
+  block-size: var(--mcp-ask-size);
+  vertical-align: middle;
+
+  &[data-state="open"],
+  &[data-state="pending"] {
+    z-index: 10;
+  }
+
+  .mcp-ask__form {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    display: flex;
+    align-items: center;
+    inline-size: var(--mcp-ask-size);
+    margin: 0;
+    overflow: hidden;
+    border-radius: calc(var(--mcp-ask-size) / 2);
+    background: var(--mcp-ask-surface);
+    box-shadow: 0 0 0 1px var(--mcp-ask-line);
+    transition:
+      inline-size 0.4s var(--mcp-ask-ease),
+      box-shadow 0.2s;
+  }
+
+  &[data-state="open"] .mcp-ask__form,
+  &[data-state="pending"] .mcp-ask__form {
+    inline-size: min(var(--mcp-ask-width), 100vw - 32px);
+    box-shadow:
+      0 0 0 1.5px var(--mcp-ask-accent),
+      0 8px 28px color-mix(in srgb, var(--mcp-ask-accent) 22%, transparent);
+  }
+
+  .mcp-ask__toggle {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: var(--mcp-ask-size);
+    block-size: var(--mcp-ask-size);
+    border-radius: 50%;
+  }
+
+  /* A conversation from earlier in this visit can be resumed */
+  &.mcp-ask--has-history .mcp-ask__toggle::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+    inline-size: 8px;
+    block-size: 8px;
+    border: 2px solid var(--mcp-ask-surface);
+    border-radius: 50%;
+    background: var(--mcp-ask-accent);
+    box-sizing: content-box;
+  }
+
+  .mcp-ask__input {
+    flex: 1;
+    block-size: var(--mcp-ask-size);
+    outline: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s,
+      visibility 0s 0.2s;
+
+    &::placeholder {
+      color: var(--mcp-ask-muted);
+      opacity: 1;
+    }
+  }
+
+  .mcp-ask__submit {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    margin-inline: 6px;
+    border-radius: 50%;
+    background: var(--mcp-ask-accent);
+    color: var(--mcp-ask-on-accent);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s,
+      visibility 0s 0.2s,
+      scale 0.2s;
+
+    &:hover {
+      scale: 1.06;
+    }
+
+    svg {
+      inline-size: 16px;
+      block-size: 16px;
+    }
+  }
+
+  &[data-state="open"] .mcp-ask__input:not(:placeholder-shown) ~ .mcp-ask__submit,
+  &.mcp-ask--box .mcp-ask__input:not(:placeholder-shown) ~ .mcp-ask__submit {
+    animation:
+      mcp-ask-pop 0.35s var(--mcp-ask-ease),
+      mcp-ask-glow 2s ease-in-out 0.35s infinite;
+  }
+
+  &[data-state="open"] .mcp-ask__input,
+  &[data-state="pending"] .mcp-ask__input,
+  &[data-state="open"] .mcp-ask__submit {
+    opacity: 1;
+    visibility: visible;
+    /* Visible at once, so the input can take focus while it fades in */
+    transition-delay: 0s;
+  }
+
+  &[data-state="pending"] .mcp-ask__input {
+    color: var(--mcp-ask-muted);
+  }
+
+  .mcp-ask-dots {
+    display: none;
+    flex: none;
+    justify-content: center;
+    inline-size: 44px;
+    color: var(--mcp-ask-accent);
+  }
+
+  &[data-state="pending"] {
+    .mcp-ask__submit {
+      display: none;
+    }
+
+    .mcp-ask-dots {
+      display: inline-flex;
+    }
+  }
+
+  .mcp-ask__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Opens towards the end of the line instead of the start */
+.mcp-ask--start .mcp-ask__form {
+  inset-inline: 0 auto;
+}
+
+/* Always-open search box that fills its module position */
+.mcp-ask--box {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 560px;
+
+  .mcp-ask__form {
+    position: relative;
+    inline-size: 100%;
+  }
+
+  &[data-state] .mcp-ask__form {
+    inline-size: 100%;
+  }
+
+  .mcp-ask__input,
+  &[data-state="idle"] .mcp-ask__submit {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &[data-state="idle"] .mcp-ask__form:not(:focus-within) {
+    box-shadow: 0 0 0 1px var(--mcp-ask-line);
+  }
+
+  &[data-state="idle"] .mcp-ask__form:focus-within {
+    box-shadow:
+      0 0 0 1.5px var(--mcp-ask-accent),
+      0 8px 28px color-mix(in srgb, var(--mcp-ask-accent) 22%, transparent);
+  }
+}
+
+/* A button fixed to the lower corner of the window. Closed it is a round search button; opened,
+   the question is typed to its left and the same button sends it. */
+.mcp-ask--float {
+  --mcp-ask-size: 56px;
+
+  position: fixed;
+  inset-block-end: max(20px, env(safe-area-inset-bottom));
+  inset-inline-end: max(20px, env(safe-area-inset-right));
+  z-index: 1000;
+
+  .mcp-ask__form {
+    box-shadow:
+      0 0 0 1px var(--mcp-ask-line),
+      0 10px 30px color-mix(in srgb, var(--mcp-ask-accent) 28%, transparent);
+  }
+
+  .mcp-ask__toggle {
+    order: 3;
+    inline-size: calc(var(--mcp-ask-size) - 12px);
+    block-size: calc(var(--mcp-ask-size) - 12px);
+    margin: 6px;
+    background: var(--mcp-ask-gradient);
+    color: var(--mcp-ask-on-accent);
+    transition: scale 0.2s;
+
+    &:hover {
+      scale: 1.06;
+    }
+
+    /* Search and send share the button: one turns into the other */
+    svg {
+      grid-area: 1 / 1;
+      transition:
+        opacity 0.25s,
+        rotate 0.35s var(--mcp-ask-ease),
+        scale 0.35s var(--mcp-ask-ease);
+    }
+
+    .mcp-ask__send {
+      opacity: 0;
+      rotate: -90deg;
+      scale: 0.4;
+    }
+  }
+
+  &[data-state="open"] .mcp-ask__toggle {
+    svg:not(.mcp-ask__send) {
+      opacity: 0;
+      rotate: 90deg;
+      scale: 0.4;
+    }
+
+    .mcp-ask__send {
+      opacity: 1;
+      rotate: 0deg;
+      scale: 1;
+    }
+  }
+
+  /* Something has been typed: the button comes alive */
+  &[data-state="open"] .mcp-ask__toggle:has(~ .mcp-ask__input:not(:placeholder-shown)) {
+    animation:
+      mcp-ask-pop 0.35s var(--mcp-ask-ease),
+      mcp-ask-glow 2s ease-in-out 0.35s infinite;
+  }
+
+  &.mcp-ask--has-history .mcp-ask__toggle::after {
+    inset-block-start: 2px;
+    inset-inline-end: 2px;
+    background: var(--mcp-ask-accent-3);
+  }
+
+  .mcp-ask__input {
+    order: 1;
+  }
+
+  /* Only when open: closed, the padding would push the button out of its circle */
+  &[data-state="open"] .mcp-ask__input,
+  &[data-state="pending"] .mcp-ask__input {
+    padding-inline-start: 22px;
+  }
+
+  .mcp-ask-dots {
+    order: 2;
+    inline-size: var(--mcp-ask-size);
+  }
+
+  /* The one button does the sending */
+  .mcp-ask__submit {
+    display: none;
+  }
+
+  &[data-state="pending"] .mcp-ask__toggle {
+    display: none;
+  }
+}
+
+/* The floating button at the top of the window's edge, or half-way down, instead of at the bottom */
+.mcp-ask--float-top {
+  inset-block: max(20px, env(safe-area-inset-top)) auto;
+}
+
+.mcp-ask--float-middle {
+  inset-block: 0;
+  margin-block: auto;
+}
+
+/* Moved by the visitor: on the side they let go of it, at the height they left it (0 top, 1 bottom).
+   As a share of the window, so it stays in place when the window changes size. */
+.mcp-ask--float[data-y] {
+  --mcp-ask-edge-top: max(20px, env(safe-area-inset-top));
+  --mcp-ask-edge-bottom: max(20px, env(safe-area-inset-bottom));
+
+  inset-block: calc(var(--mcp-ask-edge-top) + (100dvh - var(--mcp-ask-size) - var(--mcp-ask-edge-top) - var(--mcp-ask-edge-bottom)) * var(--mcp-ask-y, 1)) auto;
+  margin-block: 0;
+}
+
+.mcp-ask--float[data-side="right"] {
+  right: max(20px, env(safe-area-inset-right));
+  left: auto;
+}
+
+/* On the left the box opens to the right, with the button staying where it was put */
+.mcp-ask--float[data-side="left"] {
+  right: auto;
+  left: max(20px, env(safe-area-inset-left));
+
+  .mcp-ask__form {
+    right: auto;
+    left: 0;
+    flex-direction: row-reverse;
+  }
+
+  &[data-state="open"] .mcp-ask__input,
+  &[data-state="pending"] .mcp-ask__input {
+    padding-inline: 4px 22px;
+  }
+}
+
+/* The button can be picked up and moved; the page does not scroll under the finger meanwhile */
+.mcp-ask--float[data-state="idle"] .mcp-ask__toggle {
+  touch-action: none;
+  cursor: grab;
+}
+
+.mcp-ask--dragging {
+  .mcp-ask__toggle {
+    cursor: grabbing;
+    scale: 1.1 !important;
+  }
+
+  .mcp-ask__form {
+    box-shadow:
+      0 0 0 1px var(--mcp-ask-line),
+      0 18px 40px color-mix(in srgb, var(--mcp-ask-accent) 40%, transparent);
+    transition: none;
+  }
+}
+
+/* With an on-screen keyboard up (iOS lays it over the page), the open search box sits just above
+   it, wherever the button was, and the conversation keeps to the part of the window still seen */
+.mcp-ask-keyboard .mcp-ask--float:not([data-state="idle"]) {
+  inset-block: auto calc(var(--mcp-ask-keyboard, 0px) + 12px);
+  margin-block: 0;
+}
+
+.mcp-ask-keyboard .mcp-ask-chat[open] {
+  inset-block: var(--mcp-ask-view-top, 0px) auto;
+  block-size: var(--mcp-ask-view-height, 100dvh);
+}
+
+/* The ask icon: a speech bubble with two stars that glow and, now and then, twinkle */
+.mcp-ask__ai {
+  overflow: visible;
+  stroke-width: 1.8;
+
+  .mcp-ask__spark {
+    fill: currentColor;
+    stroke: none;
+    filter: drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 3px color-mix(in srgb, currentColor 55%, transparent));
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mcp-ask-twinkle 3.2s ease-in-out infinite;
+  }
+
+  .mcp-ask__spark--small {
+    animation-delay: 1.1s;
+  }
+}
+
+/* A little larger on the floating button, where it is all there is to see */
+.mcp-ask--float .mcp-ask__toggle .mcp-ask__ai {
+  inline-size: 24px;
+  block-size: 24px;
+}
+
+/* On the coloured floating button the stars shine white, with a warm halo */
+.mcp-ask--float .mcp-ask__ai .mcp-ask__spark {
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 4px color-mix(in srgb, var(--mcp-ask-new, #ffd84d) 70%, transparent));
+}
+
+@keyframes mcp-ask-twinkle {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+
+  80% {
+    opacity: 0.55;
+    scale: 0.7;
+  }
+
+  90% {
+    opacity: 1;
+    scale: 1.18;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcp-ask__ai .mcp-ask__spark {
+    animation: none;
+  }
+}
+
+/* ---------- Waiting dots ---------- */
+
+.mcp-ask-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  i {
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: mcp-ask-bounce 1s infinite;
+
+    &:nth-child(1) {
+      background: var(--mcp-ask-accent);
+    }
+
+    &:nth-child(2) {
+      background: var(--mcp-ask-accent-2);
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      background: var(--mcp-ask-accent-3);
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+@keyframes mcp-ask-hover {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: -2deg;
+  }
+
+  50% {
+    translate: 0 -14px;
+    rotate: 2deg;
+  }
+}
+
+@keyframes mcp-ask-say {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mcp-ask-pop {
+  from {
+    scale: 0.82;
+  }
+}
+
+@keyframes mcp-ask-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--mcp-ask-accent) 45%, transparent),
+      0 0 12px color-mix(in srgb, var(--mcp-ask-accent-2) 50%, transparent);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 7px transparent,
+      0 0 22px color-mix(in srgb, var(--mcp-ask-accent-3) 70%, transparent);
+  }
+}
+
+@keyframes mcp-ask-bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    translate: 0 0;
+  }
+
+  30% {
+    opacity: 1;
+    translate: 0 -5px;
+  }
+}
+
+/* ---------- Conversation overlay ---------- */
+
+html:has(.mcp-ask-chat[open]) {
+  overflow: hidden;
+}
+
+.mcp-ask-chat {
+  position: fixed;
+  inset: 0;
+  inline-size: 100%;
+  max-inline-size: none;
+  block-size: 100dvh;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  /* A cool white field over the blurred page, with one glow of each accent kept to the corners */
+  background:
+    radial-gradient(48% 42% at 92% 4%, color-mix(in srgb, var(--mcp-ask-accent-2) 18%, transparent), transparent 72%),
+    radial-gradient(52% 46% at 2% 96%, color-mix(in srgb, var(--mcp-ask-accent-3) 14%, transparent), transparent 72%),
+    radial-gradient(40% 36% at 78% 100%, color-mix(in srgb, var(--mcp-ask-accent) 12%, transparent), transparent 72%),
+    /* Mostly white: whatever the page behind looks like, the text keeps its contrast */
+    color-mix(in srgb, var(--mcp-ask-surface) 82%, transparent);
+  backdrop-filter: blur(28px) saturate(1.3);
+  text-align: start;
+
+  &::backdrop {
+    background: none;
+  }
+
+  /* Fine grain over the gradients */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .2 0 0 0 0 .6 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .mcp-ask-chat__grid {
+    position: absolute;
+    inset-block-start: 88px;
+    inset-inline-start: calc(50% - 680px);
+    inline-size: 168px;
+    block-size: 112px;
+    background: radial-gradient(circle, var(--mcp-ask-accent) 1.5px, transparent 2px) 0 0 / 18px 18px;
+    opacity: 0.22;
+    mask: linear-gradient(135deg, #000, transparent 80%);
+    pointer-events: none;
+  }
+
+  /* The column is 960px wide at most. The conversation itself scrolls across the whole width, so
+     shadows are not cut off at the column's edges and the scrollbar sits at the edge of the screen. */
+  .mcp-ask-chat__panel {
+    --mcp-ask-gutter: max(16px, (100% - 960px) / 2);
+
+    position: relative;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    block-size: 100%;
+  }
+
+  .mcp-ask-chat__head,
+  .mcp-ask-chat__composer,
+  .mcp-ask-chat__note {
+    inline-size: min(100% - 32px, 960px);
+    margin-inline: auto;
+  }
+
+  .mcp-ask-chat__head {
+    /* A <header>: a template's styles for page headers must not reach it */
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-block: 16px;
+  }
+
+  .mcp-ask-chat__title {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+
+    &::before {
+      content: "";
+      inline-size: 10px;
+      block-size: 10px;
+      border-radius: 50%;
+      background: var(--mcp-ask-gradient);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--mcp-ask-accent) 12%, transparent);
+    }
+  }
+
+  .mcp-ask-chat__new,
+  .mcp-ask-chat__human,
+  .mcp-ask-chat__login,
+  .mcp-ask-chat__close {
+    display: inline-grid;
+    place-items: center;
+    block-size: 40px;
+    border-radius: 20px;
+    background: var(--mcp-ask-glass);
+    backdrop-filter: var(--mcp-ask-frost);
+    font-size: 14px;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+
+  /* Embedded: signing in, or who is signed in (a press signs out) */
+  .mcp-ask-chat__login {
+    max-inline-size: 12em;
+    overflow: hidden;
+    padding-inline: 14px;
+    color: var(--mcp-ask-text);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &[hidden] {
+      display: none;
+    }
+
+    &.mcp-ask-chat__login--in::before {
+      content: "";
+      display: inline-block;
+      inline-size: 8px;
+      block-size: 8px;
+      margin-inline-end: 6px;
+      border-radius: 50%;
+      background: var(--mcp-ask-tip);
+      vertical-align: middle;
+    }
+  }
+
+  /* A person: quiet beside "new conversation" */
+  .mcp-ask-chat__human {
+    padding-inline: 16px;
+    border: 1px solid color-mix(in srgb, var(--mcp-ask-accent) 30%, transparent);
+    color: var(--mcp-ask-text);
+    font-weight: 600;
+
+    &:hover {
+      background: color-mix(in srgb, var(--mcp-ask-accent) 12%, var(--mcp-ask-surface));
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  /* Starting over: the one yellow thing, the colour of the saucer's lights */
+  .mcp-ask-chat__new {
+    padding-inline: 18px;
+    background: linear-gradient(135deg, var(--mcp-ask-new), var(--mcp-ask-new-2));
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--mcp-ask-new-2) 40%, transparent);
+    color: var(--mcp-ask-text);
+    font-weight: 700;
+    transition:
+      filter 0.2s,
+      scale 0.2s,
+      opacity 0.2s;
+
+    &:hover {
+      filter: brightness(1.08) saturate(1.1);
+      scale: 1.04;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      scale: 1;
+      cursor: default;
+    }
+  }
+
+  /* Its light: a cone that widens downwards over the conversation, from where the saucer takes it up */
+  .mcp-ask-chat__beam {
+    position: absolute;
+    inset-block: calc(7vh + var(--mcp-ask-ufo) * 0.6) 96px;
+    inset-inline-start: calc(50% - min(46vw, 420px));
+    z-index: 1;
+    inline-size: min(92vw, 840px);
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--mcp-ask-new) 75%, transparent),
+      color-mix(in srgb, var(--mcp-ask-new) 22%, transparent) 55%,
+      transparent
+    );
+    clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+    transform-origin: 50% 0;
+    filter: blur(6px);
+    pointer-events: none;
+  }
+
+  .mcp-ask-chat__log--lifted {
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* The letters of the old conversation on their way up (drawn by ask.js) */
+  .mcp-ask-chat__dust {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  /* While the saucer is here, its passenger does the talking */
+  &[data-ufo] .mcp-ask-chat__log:empty::before {
+    content: none;
+  }
+
+  .mcp-ask-chat__close {
+    inline-size: 40px;
+    box-shadow: var(--mcp-ask-edge), var(--mcp-ask-lift);
+
+    &:hover {
+      background: var(--mcp-ask-soft);
+      color: var(--mcp-ask-accent);
+    }
+  }
+
+  .mcp-ask-chat__log {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 16px var(--mcp-ask-gutter) 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Where the conversation continues above or below, it fades away instead of being cut off */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--mcp-ask-fade-above),
+      #000 calc(100% - var(--mcp-ask-fade-below)),
+      transparent
+    );
+    transition:
+      scrollbar-color 0.4s,
+      --mcp-ask-fade-above 0.3s,
+      --mcp-ask-fade-below 0.3s;
+
+    &[data-above] {
+      --mcp-ask-fade-above: 48px;
+    }
+
+    &[data-below] {
+      --mcp-ask-fade-below: 48px;
+    }
+
+    &:empty::before {
+      content: attr(data-empty);
+      margin: auto;
+      background: var(--mcp-ask-gradient);
+      background-clip: text;
+      color: transparent;
+      font-size: clamp(22px, 3.2vw, 32px);
+      font-weight: 700;
+    }
+  }
+
+  .mcp-ask-chat__composer {
+    display: flex;
+    align-items: flex-end;
+    margin-block: 0;
+    padding: 6px;
+    border-radius: 28px;
+    background: color-mix(in srgb, var(--mcp-ask-surface) 88%, transparent);
+    backdrop-filter: var(--mcp-ask-frost);
+    box-shadow:
+      0 0 0 1px var(--mcp-ask-line),
+      var(--mcp-ask-lift);
+    transition: box-shadow 0.2s;
+
+    &:focus-within {
+      box-shadow:
+        0 0 0 1.5px var(--mcp-ask-accent),
+        0 12px 36px color-mix(in srgb, var(--mcp-ask-accent) 20%, transparent);
+    }
+  }
+
+  .mcp-ask-chat__input {
+    flex: 1;
+    field-sizing: content;
+    min-block-size: 44px;
+    max-block-size: 160px;
+    padding: 10px 16px;
+    outline: 0;
+    resize: none;
+
+    &::placeholder {
+      color: var(--mcp-ask-muted);
+      opacity: 1;
+    }
+  }
+
+  .mcp-ask-chat__send {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: 44px;
+    block-size: 44px;
+    border-radius: 50%;
+    background: var(--mcp-ask-accent);
+    color: var(--mcp-ask-on-accent);
+    transition:
+      opacity 0.2s,
+      scale 0.2s;
+
+    /* Something has been typed: the button comes alive */
+    .mcp-ask-chat__input:not(:placeholder-shown) + &:not(:disabled) {
+      animation:
+        mcp-ask-pop 0.35s var(--mcp-ask-ease),
+        mcp-ask-glow 2s ease-in-out 0.35s infinite;
+    }
+
+    &:hover {
+      scale: 1.06;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      scale: 1;
+      cursor: default;
+    }
+  }
+
+  .mcp-ask-chat__note {
+    margin-block: 0;
+    padding-block: 10px 14px;
+    color: var(--mcp-ask-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+}
+
+.mcp-ask-chat[open] {
+  display: block;
+}
+
+/* A thin scrollbar that is only seen while its content is being scrolled (ask.js sets the attribute) */
+.mcp-ask-chat .mcp-ask-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition:
+    scrollbar-color 0.4s,
+    --mcp-ask-fade-above 0.3s,
+    --mcp-ask-fade-below 0.3s;
+
+  &[data-scrolling] {
+    scrollbar-color: color-mix(in srgb, var(--mcp-ask-text) 32%, transparent) transparent;
+  }
+
+  /* Safari before 18.2 */
+  @supports not (scrollbar-color: auto) {
+    &::-webkit-scrollbar {
+      inline-size: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background: transparent;
+    }
+
+    &[data-scrolling]::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--mcp-ask-text) 32%, transparent);
+    }
+  }
+}
+
+/* How far the list of pages fades out at an edge it continues beyond; registered so it can be animated */
+@property --mcp-ask-fade-above {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --mcp-ask-fade-below {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* ---------- The flying saucer ---------- */
+
+/*
+ * It comes when a new conversation is started. Where it is depends on data-ufo of the overlay:
+ * "pull" high up, taking the old conversation in; "hover" in the middle, asking; "point" small,
+ * above the box to type in. ask.js flies it in from the button and back to it.
+ */
+.mcp-ask-visitor {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  transform-origin: calc(var(--mcp-ask-ufo) / 2) calc(var(--mcp-ask-ufo) * 0.38);
+  translate: calc(50vw - var(--mcp-ask-ufo) / 2) 7vh;
+  transition: translate 1.2s cubic-bezier(0.45, 0, 0.2, 1);
+  pointer-events: none;
+
+  .mcp-ask-visitor__ufo {
+    flex: none;
+    inline-size: var(--mcp-ask-ufo);
+    block-size: auto;
+    filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--mcp-ask-accent-2) 35%, transparent));
+    transition: inline-size 1.2s cubic-bezier(0.45, 0, 0.2, 1);
+    animation: mcp-ask-hover 3.2s ease-in-out infinite;
+  }
+
+  .mcp-ask-visitor__say {
+    position: relative;
+    margin: -4px 0 0 -6px;
+    padding: 12px 20px;
+    border-radius: 22px;
+    border-end-start-radius: 6px;
+    background: var(--mcp-ask-surface);
+    box-shadow: var(--mcp-ask-lift);
+    color: var(--mcp-ask-text);
+    font-size: clamp(17px, 2.2vw, 22px);
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+    opacity: 0;
+    transform-origin: 0 100%;
+
+    /* The tail, pointing at the dome */
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block-end: -5px;
+      inset-inline-start: -7px;
+      inline-size: 18px;
+      block-size: 18px;
+      background: inherit;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+  }
+}
+
+.mcp-ask-chat[data-ufo="hover"] .mcp-ask-visitor {
+  translate: calc(50vw - var(--mcp-ask-ufo) / 2) calc(40vh - var(--mcp-ask-ufo) * 0.4);
+
+  /* Two names for the same appearance, so that it plays again when the saucer moves on */
+  .mcp-ask-visitor__say {
+    animation: mcp-ask-say 0.45s var(--mcp-ask-ease) 1.1s both;
+  }
+}
+
+.mcp-ask-chat[data-ufo="point"] .mcp-ask-visitor {
+  translate: calc(max(16px, (100vw - 960px) / 2) + 8px) calc(100dvh - 190px);
+
+  .mcp-ask-visitor__ufo {
+    inline-size: 92px;
+  }
+
+  .mcp-ask-visitor__say {
+    padding: 8px 16px;
+    font-size: 16px;
+    animation: mcp-ask-say-again 0.45s var(--mcp-ask-ease) 1.1s both;
+  }
+}
+
+/* Without room beside the saucer in the middle, the bubble goes below it */
+@media (max-width: 640px) {
+  .mcp-ask-chat[data-ufo="hover"] .mcp-ask-visitor {
+    flex-direction: column;
+    align-items: center;
+
+    .mcp-ask-visitor__say {
+      margin: 12px 0 0;
+      border-end-start-radius: 22px;
+      border-start-start-radius: 6px;
+      transform-origin: 20% 0;
+
+      &::before {
+        inset-block: -5px auto;
+        inset-inline-start: 14px;
+        clip-path: polygon(0 100%, 100% 100%, 50% 0);
+      }
+    }
+  }
+}
+
+@keyframes mcp-ask-say-again {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- Messages ---------- */
+
+.mcp-ask-msg {
+  animation: mcp-ask-rise 0.4s var(--mcp-ask-ease) both;
+
+  /* The assistant is a small token with a spark, not a face: a dotted orbit turns while it works */
+  .mcp-ask-msg__token {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 50%;
+    background: var(--mcp-ask-gradient);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--mcp-ask-accent) 10%, transparent);
+    color: var(--mcp-ask-on-accent);
+
+    svg {
+      inline-size: 16px;
+      block-size: 16px;
+      fill: currentColor;
+      stroke: none;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border: 1.5px dotted var(--mcp-ask-accent-3);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  }
+
+  &.mcp-ask-msg--pending .mcp-ask-msg__token::after {
+    opacity: 1;
+    animation: mcp-ask-orbit 6s linear infinite;
+  }
+
+  .mcp-ask-msg__body {
+    overflow-wrap: anywhere;
+    font-size: 16px;
+    line-height: 1.75;
+
+    > :first-child {
+      margin-block-start: 0;
+    }
+
+    > :last-child {
+      margin-block-end: 0;
+    }
+
+    p,
+    ul,
+    ol,
+    pre {
+      margin-block: 0 14px;
+    }
+
+    h3,
+    h4 {
+      margin-block: 24px 8px;
+      color: var(--mcp-ask-heading);
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    li::marker {
+      color: var(--mcp-ask-accent);
+    }
+
+    h4 {
+      font-size: 16px;
+    }
+
+    ul,
+    ol {
+      padding-inline-start: 24px;
+    }
+
+    li {
+      margin-block: 4px;
+    }
+
+    a:not(.mcp-ask-cite) {
+      color: var(--mcp-ask-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    code,
+    pre {
+      border-radius: 6px;
+      background: var(--mcp-ask-code);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+    }
+
+    code {
+      padding: 2px 6px;
+    }
+
+    pre {
+      padding: 12px 16px;
+      overflow-x: auto;
+      white-space: pre;
+
+      code {
+        padding: 0;
+        background: none;
+      }
+    }
+
+    /* Screenshots of the site's own pages */
+    .mcp-ask-figure {
+      display: block;
+      margin-block: 8px 14px;
+    }
+
+    .mcp-ask-image {
+      display: block;
+      max-inline-size: 100%;
+      max-block-size: 420px;
+      block-size: auto;
+      border: 1px solid var(--mcp-ask-line);
+      border-radius: 10px;
+      background: var(--mcp-ask-field);
+      box-shadow: var(--mcp-ask-lift);
+      cursor: zoom-in;
+      transition: box-shadow 0.2s;
+    }
+
+    .mcp-ask-image:hover {
+      /* A template that enlarges images under the pointer does not reach these: a tap shows them whole */
+      transform: none;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--mcp-ask-accent) 25%, transparent), var(--mcp-ask-lift);
+    }
+
+    .mcp-ask-table {
+      margin-block: 0 14px;
+      overflow-x: auto;
+      border: 1px solid var(--mcp-ask-line);
+      border-radius: 10px;
+
+      table {
+        inline-size: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      th,
+      td {
+        padding: 8px 12px;
+        border-block-end: 1px solid var(--mcp-ask-line);
+        text-align: start;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--mcp-ask-table-head);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      tr:last-child td {
+        border-block-end: 0;
+      }
+    }
+
+    .mcp-ask-quote {
+      margin: 0 0 14px;
+      padding: 10px 16px;
+      border-inline-start: 4px solid var(--mcp-ask-line);
+      color: var(--mcp-ask-muted);
+
+      > :last-child {
+        margin-block-end: 0;
+      }
+    }
+
+    .mcp-ask-callout {
+      --mcp-ask-callout: var(--mcp-ask-accent);
+
+      border-inline-start-color: var(--mcp-ask-callout);
+      border-radius: 0 10px 10px 0;
+      background: color-mix(in srgb, var(--mcp-ask-callout) 8%, var(--mcp-ask-surface));
+      color: inherit;
+    }
+
+    .mcp-ask-callout--tip {
+      --mcp-ask-callout: var(--mcp-ask-tip);
+    }
+
+    .mcp-ask-callout--warning {
+      --mcp-ask-callout: var(--mcp-ask-warning);
+    }
+
+    .mcp-ask-callout__label {
+      margin-block-end: 4px;
+      color: var(--mcp-ask-callout);
+      font-size: 14px;
+      font-weight: 700;
+    }
+  }
+
+  .mcp-ask-msg__status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-block-size: 28px;
+    color: var(--mcp-ask-muted);
+    font-size: 14px;
+
+    .mcp-ask-dots {
+      color: var(--mcp-ask-accent);
+    }
+  }
+
+  .mcp-ask-msg__label {
+    margin-block: 0 10px;
+    color: var(--mcp-ask-muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .mcp-ask-msg__sources {
+    --min: 240px;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min)), 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.mcp-ask-msg .mcp-ask-msg__more {
+  margin-block-start: 10px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  color: var(--mcp-ask-accent);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+
+  &:hover {
+    background: var(--mcp-ask-soft);
+  }
+}
+
+/* Lit from the other side: a reference whose page is pointed at, a page whose reference is */
+.mcp-ask-source.mcp-ask-glow,
+.mcp-ask-msg .mcp-ask-msg__more.mcp-ask-glow {
+  box-shadow:
+    0 0 0 1.5px var(--mcp-ask-accent),
+    0 0 24px color-mix(in srgb, var(--mcp-ask-accent) 45%, transparent),
+    0 0 48px color-mix(in srgb, var(--mcp-ask-accent-3) 30%, transparent);
+  opacity: 1;
+}
+
+.mcp-ask-cite.mcp-ask-glow {
+  background: var(--mcp-ask-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mcp-ask-accent) 55%, transparent);
+  color: var(--mcp-ask-on-accent);
+}
+
+.mcp-ask-msg--user {
+  align-self: flex-end;
+  max-inline-size: min(100%, 640px);
+
+  .mcp-ask-msg__body {
+    padding: 10px 18px;
+    border-radius: 22px;
+    border-end-end-radius: 6px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--mcp-ask-accent) 88%, transparent),
+      color-mix(in srgb, var(--mcp-ask-accent-2) 88%, transparent)
+    );
+    backdrop-filter: var(--mcp-ask-frost);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--mcp-ask-accent) 22%, transparent);
+    color: var(--mcp-ask-on-accent);
+    white-space: pre-wrap;
+  }
+}
+
+.mcp-ask-msg--bot {
+  display: grid;
+  grid-template-columns: var(--mcp-ask-token, 32px) minmax(0, 1fr);
+  gap: 24px 16px;
+
+  > :not(.mcp-ask-msg__token) {
+    grid-column: 2;
+  }
+
+  .mcp-ask-msg__status {
+    min-block-size: 32px;
+  }
+}
+
+/* With room to spare, the pages an answer draws on stay beside it while it is read */
+@media (min-width: 900px) {
+  .mcp-ask-chat .mcp-ask-chat__panel {
+    --mcp-ask-gutter: max(32px, (100% - 960px) / 2);
+  }
+
+  .mcp-ask-msg--bot {
+    grid-template-columns: var(--mcp-ask-token, 32px) minmax(0, 1fr) 272px;
+    column-gap: 40px;
+
+    > .mcp-ask-msg__aside {
+      grid-row: 1 / span 2;
+      grid-column: 3;
+      align-self: start;
+    }
+
+    /* The whole list, opened by the visitor: it stays in view while the answer is read */
+    &.mcp-ask-msg--expanded > .mcp-ask-msg__aside {
+      position: sticky;
+      inset-block-start: 0;
+      max-block-size: calc(100dvh - 220px);
+      margin: -8px;
+      padding: 8px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      /* Where there is more above or below, the cards fade away instead of being cut off */
+      mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        #000 var(--mcp-ask-fade-above),
+        #000 calc(100% - var(--mcp-ask-fade-below)),
+        transparent
+      );
+      transition:
+        scrollbar-color 0.4s,
+        --mcp-ask-fade-above 0.3s,
+        --mcp-ask-fade-below 0.3s;
+
+      &[data-above] {
+        --mcp-ask-fade-above: 56px;
+      }
+
+      &[data-below] {
+        --mcp-ask-fade-below: 56px;
+      }
+    }
+
+    .mcp-ask-msg__sources {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+/* On a phone the answer needs the whole width, so the token sits above it */
+@media (max-width: 640px) {
+  .mcp-ask-msg--bot {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 14px;
+
+    > :not(.mcp-ask-msg__token) {
+      grid-column: 1;
+    }
+
+    .mcp-ask-msg__token {
+      inline-size: 28px;
+      block-size: 28px;
+      margin: 4px;
+    }
+  }
+
+}
+
+/* The dot grid only where there is room beside the column, never behind the answer */
+@media (max-width: 1400px) {
+  .mcp-ask-chat .mcp-ask-chat__grid {
+    display: none;
+  }
+}
+
+@keyframes mcp-ask-orbit {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* Was this helpful? Quiet below the answer until it is used */
+.mcp-ask-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-block-start: -14px;
+  color: var(--mcp-ask-muted);
+  font-size: 13px;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.mcp-ask-rate__button {
+  display: grid;
+  place-items: center;
+  inline-size: 30px;
+  block-size: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    scale 0.2s;
+
+  svg {
+    inline-size: 17px;
+    block-size: 17px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--mcp-ask-accent) 10%, transparent);
+    color: var(--mcp-ask-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mcp-ask-accent);
+    outline-offset: 1px;
+  }
+
+  &[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--mcp-ask-accent) 14%, transparent);
+    color: var(--mcp-ask-accent);
+    scale: 1.05;
+
+    svg {
+      fill: color-mix(in srgb, var(--mcp-ask-accent) 22%, transparent);
+    }
+  }
+}
+
+.mcp-ask-rate__why {
+  flex: 1 1 220px;
+  margin: 0;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.mcp-ask-rate__reason {
+  inline-size: 100%;
+  min-block-size: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--mcp-ask-line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--mcp-ask-surface) 80%, transparent);
+  color: inherit;
+  font: inherit;
+
+  &:focus {
+    border-color: var(--mcp-ask-accent);
+    outline: 0;
+  }
+}
+
+.mcp-ask-rate__thanks {
+  margin-inline-start: 4px;
+  animation: mcp-ask-rate-in 0.4s ease;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+@keyframes mcp-ask-rate-in {
+  from {
+    opacity: 0;
+    translate: -4px 0;
+  }
+}
+
+.mcp-ask-msg--error {
+  .mcp-ask-msg__body {
+    color: var(--mcp-ask-danger);
+  }
+
+  .mcp-ask-msg__token {
+    background: var(--mcp-ask-muted);
+    box-shadow: none;
+  }
+}
+
+/* Text of an answer that has just been written (ask.js wraps it); 0.7s is FADE there */
+.mcp-ask-fade {
+  animation: mcp-ask-appear 0.7s ease-out both;
+}
+
+@keyframes mcp-ask-appear {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+@keyframes mcp-ask-rise {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+/* Numbered reference inside the answer */
+.mcp-ask-cite {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 20px;
+  block-size: 20px;
+  margin-inline: 2px;
+  padding-inline: 6px;
+  border-radius: 10px;
+  background: var(--mcp-ask-soft);
+  color: var(--mcp-ask-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  vertical-align: 2px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+
+  &:hover {
+    background: var(--mcp-ask-accent);
+    color: var(--mcp-ask-on-accent);
+  }
+}
+
+/* Source page card below the answer */
+.mcp-ask-source {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 12px;
+  align-items: center;
+  block-size: 100%;
+  padding: 12px 36px 12px 12px;
+  border-radius: 16px;
+  background: var(--mcp-ask-glass);
+  backdrop-filter: var(--mcp-ask-frost);
+  box-shadow: var(--mcp-ask-edge), var(--mcp-ask-lift);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    box-shadow 0.2s,
+    opacity 0.3s,
+    translate 0.2s;
+
+  /* Found, but the answer has not drawn on it (yet) */
+  &:not(.mcp-ask-source--cited) {
+    opacity: 0.6;
+  }
+
+  /* Arrow: this card leads to a page */
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 18px;
+    inline-size: 8px;
+    block-size: 8px;
+    border-block-start: 2px solid var(--mcp-ask-accent);
+    border-inline-end: 2px solid var(--mcp-ask-accent);
+    rotate: 45deg;
+    translate: 0 -50%;
+    transition: translate 0.2s;
+  }
+
+  &:hover {
+    box-shadow:
+      0 0 0 1.5px var(--mcp-ask-accent),
+      0 12px 32px color-mix(in srgb, var(--mcp-ask-accent) 18%, transparent);
+    color: inherit;
+    text-decoration: none;
+    opacity: 1;
+    translate: 0 -2px;
+
+    &::after {
+      translate: 4px -50%;
+    }
+  }
+
+  .mcp-ask-source__n {
+    display: grid;
+    grid-row: span 2;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--mcp-ask-soft), color-mix(in srgb, var(--mcp-ask-accent-2) 22%, var(--mcp-ask-soft)));
+    color: var(--mcp-ask-accent);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .mcp-ask-source__title {
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mcp-ask-source__path {
+    overflow: hidden;
+    color: var(--mcp-ask-muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- View transitions ---------- */
+
+/*
+ * Search box <-> conversation. ask.js puts the name on the search box and on the conversation panel,
+ * so the browser moves and resizes one into the other. The panel scales with that movement; the
+ * search box keeps its real size and only fades, or its text would be blown up to the panel's size.
+ */
+::view-transition-group(mcp-ask-open),
+::view-transition-group(mcp-ask-close) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-new(mcp-ask-open),
+::view-transition-old(mcp-ask-close) {
+  block-size: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+::view-transition-old(mcp-ask-open),
+::view-transition-new(mcp-ask-close) {
+  block-size: 100%;
+  object-fit: none;
+}
+
+::view-transition-old(mcp-ask-open) {
+  animation: 0.15s ease-out both mcp-ask-fade-out;
+}
+
+::view-transition-new(mcp-ask-open) {
+  animation: 0.35s ease-out 0.1s both mcp-ask-fade-in;
+}
+
+::view-transition-old(mcp-ask-close) {
+  animation: 0.3s ease-in both mcp-ask-fade-out;
+}
+
+::view-transition-new(mcp-ask-close) {
+  animation: 0.2s ease-out 0.3s both mcp-ask-fade-in;
+}
+
+@keyframes mcp-ask-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mcp-ask-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Page change after a source was chosen: the type is added by ask-reveal.js on the new page */
+html:active-view-transition-type(mcp-ask-nav) {
+  &::view-transition-old(root) {
+    animation: 0.2s ease-in both mcp-ask-page-out;
+  }
+
+  &::view-transition-new(root) {
+    animation: 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both mcp-ask-page-in;
+  }
+}
+
+@keyframes mcp-ask-page-out {
+  to {
+    opacity: 0;
+    translate: 0 -16px;
+  }
+}
+
+@keyframes mcp-ask-page-in {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcp-ask .mcp-ask__form,
+  .mcp-ask-msg {
+    animation: none;
+    transition: none;
+  }
+
+  .mcp-ask-dots i {
+    animation-name: mcp-ask-pulse;
+    animation-duration: 1.6s;
+  }
+
+  .mcp-ask-msg.mcp-ask-msg--pending .mcp-ask-msg__token::after {
+    animation: none;
+  }
+
+  .mcp-ask .mcp-ask__submit,
+  .mcp-ask-chat .mcp-ask-chat__send {
+    animation-iteration-count: 1;
+  }
+}
+
+@keyframes mcp-ask-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Last, so it outranks the display values set above */
+.mcp-ask-chat [hidden] {
+  display: none;
+}
+
+/* A screenshot shown whole, above the conversation */
+.mcp-ask-lightbox {
+  position: fixed;
+  inset: 0;
+  inline-size: 100vw;
+  block-size: 100dvh;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: 56px 72px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+
+  &::backdrop {
+    background: color-mix(in srgb, #0b1020 82%, transparent);
+    backdrop-filter: blur(6px);
+  }
+
+  &[open] {
+    display: grid;
+    place-items: center;
+    animation: mcp-ask-lightbox-in 0.2s var(--mcp-ask-ease, ease-out);
+  }
+
+  .mcp-ask-lightbox__figure {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    margin: 0;
+  }
+
+  .mcp-ask-lightbox__image {
+    max-inline-size: min(100%, 1400px);
+    max-block-size: calc(100dvh - 160px);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    object-fit: contain;
+  }
+
+  .mcp-ask-lightbox__caption {
+    font-size: 15px;
+    text-align: center;
+    opacity: 0.85;
+  }
+
+  .mcp-ask-lightbox__count {
+    position: absolute;
+    inset-block-start: 20px;
+    inset-inline-start: 24px;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  button {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, #fff 16%, transparent);
+    color: #fff;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in srgb, #fff 28%, transparent);
+    }
+
+    &[hidden] {
+      display: none;
+    }
+
+    svg {
+      inline-size: 22px;
+      block-size: 22px;
+      fill: none;
+      stroke: currentcolor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  .mcp-ask-lightbox__close {
+    inset-block-start: 16px;
+    inset-inline-end: 16px;
+  }
+
+  .mcp-ask-lightbox__prev,
+  .mcp-ask-lightbox__next {
+    inset-block-start: calc(50% - 22px);
+  }
+
+  .mcp-ask-lightbox__prev {
+    inset-inline-start: 16px;
+  }
+
+  .mcp-ask-lightbox__next {
+    inset-inline-end: 16px;
+  }
+
+  @media (max-width: 640px) {
+    padding: 56px 12px;
+
+    .mcp-ask-lightbox__prev,
+    .mcp-ask-lightbox__next {
+      inset-block-start: auto;
+      inset-block-end: 16px;
+    }
+  }
+}
+
+@keyframes mcp-ask-lightbox-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcp-ask-lightbox[open] {
+    animation: none;
+  }
+}
+
+/* ---------- Agents: cards, the bar of the agent in charge, helpers to try ---------- */
+
+.mcp-ask-chat {
+  .mcp-ask-chat__agent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 var(--mcp-ask-gutter) 4px;
+    padding: 8px 8px 8px 14px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--mcp-ask-accent) 10%, var(--mcp-ask-surface));
+    color: var(--mcp-ask-text);
+    font-size: 14px;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .mcp-ask-chat__agent-name {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &::before {
+      content: "";
+      display: inline-block;
+      inline-size: 8px;
+      block-size: 8px;
+      margin-inline-end: 8px;
+      border-radius: 50%;
+      background: var(--mcp-ask-tip);
+      vertical-align: 1px;
+    }
+  }
+
+  .mcp-ask-chat__agent-leave,
+  .mcp-ask-card__secondary {
+    padding: 6px 14px;
+    border: 1px solid var(--mcp-ask-line);
+    border-radius: 999px;
+    background: var(--mcp-ask-surface);
+    color: var(--mcp-ask-text);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--mcp-ask-accent);
+      color: var(--mcp-ask-accent);
+    }
+  }
+
+  .mcp-ask-chat__try {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0 var(--mcp-ask-gutter) 8px;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .mcp-ask-try__label {
+    color: var(--mcp-ask-muted);
+    font-size: 13px;
+  }
+
+  .mcp-ask-msg--agent .mcp-ask-msg__body {
+    display: grid;
+    gap: 12px;
+  }
+
+  .mcp-ask-card {
+    margin: 0;
+  }
+
+  .mcp-ask-card--text > :last-child {
+    margin-block-end: 0;
+  }
+
+  .mcp-ask-card--fields,
+  .mcp-ask-card--summary,
+  .mcp-ask-offer {
+    display: grid;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 1px solid var(--mcp-ask-line);
+    border-radius: 16px;
+    background: var(--mcp-ask-surface);
+    box-shadow: var(--mcp-ask-lift);
+  }
+
+  .mcp-ask-card__head {
+    display: grid;
+    gap: 8px;
+  }
+
+  .mcp-ask-card__title {
+    margin: 0;
+    color: var(--mcp-ask-heading);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .mcp-ask-card__progress {
+    position: relative;
+    display: block;
+    block-size: 6px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--mcp-ask-soft);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      inline-size: var(--progress, 0%);
+      border-radius: inherit;
+      background: var(--mcp-ask-gradient);
+      transition: inline-size 0.4s var(--mcp-ask-ease);
+    }
+  }
+
+  .mcp-ask-field {
+    display: grid;
+    gap: 6px;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .mcp-ask-field__label {
+    padding: 0;
+    color: var(--mcp-ask-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .mcp-ask-field__required {
+    margin-inline-start: 4px;
+    color: var(--mcp-ask-danger);
+  }
+
+  .mcp-ask-field__control {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: 42px;
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--mcp-ask-line);
+    border-radius: 10px;
+    background: var(--mcp-ask-field);
+    box-shadow: none;
+    color: var(--mcp-ask-text);
+    font: inherit;
+    font-size: 16px;
+
+    &:focus {
+      border-color: var(--mcp-ask-accent);
+      outline: 3px solid color-mix(in srgb, var(--mcp-ask-accent) 20%, transparent);
+      outline-offset: 0;
+    }
+  }
+
+  textarea.mcp-ask-field__control {
+    resize: vertical;
+  }
+
+  .mcp-ask-field__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mcp-ask-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--mcp-ask-line);
+    border-radius: 999px;
+    background: var(--mcp-ask-field);
+    color: var(--mcp-ask-text);
+    font-size: 15px;
+    cursor: pointer;
+
+    input {
+      inline-size: 16px;
+      block-size: 16px;
+      margin: 0;
+      accent-color: var(--mcp-ask-accent);
+    }
+
+    &:has(input:checked) {
+      border-color: var(--mcp-ask-accent);
+      background: color-mix(in srgb, var(--mcp-ask-accent) 10%, var(--mcp-ask-surface));
+    }
+  }
+
+  .mcp-ask-field__info,
+  .mcp-ask-field__help {
+    margin: 0;
+    color: var(--mcp-ask-muted);
+    font-size: 14px;
+    white-space: pre-line;
+  }
+
+  .mcp-ask-field__error {
+    margin: 0;
+    color: var(--mcp-ask-danger);
+    font-size: 13px;
+  }
+
+  .mcp-ask-field--error .mcp-ask-field__control,
+  .mcp-ask-field--error .mcp-ask-choice {
+    border-color: var(--mcp-ask-danger);
+  }
+
+  .mcp-ask-card__primary {
+    justify-self: start;
+    min-block-size: 42px;
+    padding: 9px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--mcp-ask-accent);
+    color: var(--mcp-ask-on-accent);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 18px color-mix(in srgb, var(--mcp-ask-accent) 30%, transparent);
+      transform: translateY(-1px);
+    }
+  }
+
+  .mcp-ask-card__rows {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 8px 16px;
+    margin: 0;
+
+    dt {
+      color: var(--mcp-ask-muted);
+      font-size: 14px;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--mcp-ask-text);
+      font-weight: 600;
+      white-space: pre-line;
+    }
+  }
+
+  .mcp-ask-card__buttons,
+  .mcp-ask-card--actions,
+  .mcp-ask-card--suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Passed on to a person: a light for whether someone is there */
+  .mcp-ask-handoff {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--mcp-ask-accent) 8%, var(--mcp-ask-surface));
+
+    .mcp-ask-card__primary[hidden] {
+      display: none;
+    }
+  }
+
+  .mcp-ask-handoff__status {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .mcp-ask-handoff__dot {
+    flex: none;
+    inline-size: 10px;
+    block-size: 10px;
+    margin-block-start: 0.5em;
+    border-radius: 50%;
+    background: var(--mcp-ask-muted);
+
+    [data-state="waiting"] & {
+      background: var(--mcp-ask-accent);
+      animation: mcp-ask-handoff-wait 1.2s ease-in-out infinite;
+    }
+
+    [data-state="online"] & {
+      background: var(--mcp-ask-tip);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--mcp-ask-tip) 25%, transparent);
+    }
+
+    [data-state="offline"] & {
+      background: var(--mcp-ask-warning);
+    }
+
+    [data-state="failed"] & {
+      background: var(--mcp-ask-danger);
+    }
+  }
+
+  @keyframes mcp-ask-handoff-wait {
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mcp-ask-handoff__dot {
+      animation: none !important;
+    }
+  }
+
+  .mcp-ask-card--done {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--mcp-ask-tip) 10%, var(--mcp-ask-surface));
+
+    > div > :last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  .mcp-ask-card__check {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 50%;
+    background: var(--mcp-ask-tip);
+    color: #fff;
+
+    svg {
+      inline-size: 18px;
+      block-size: 18px;
+      fill: none;
+      stroke: currentcolor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  .mcp-ask-card--error {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--mcp-ask-danger) 8%, var(--mcp-ask-surface));
+    color: var(--mcp-ask-danger);
+  }
+
+  .mcp-ask-card--closed {
+    opacity: 0.6;
+
+    .mcp-ask-card__primary,
+    .mcp-ask-card__secondary,
+    .mcp-ask-chip {
+      display: none;
+    }
+  }
+
+  .mcp-ask-card--closed.mcp-ask-card--suggestions,
+  .mcp-ask-card--closed.mcp-ask-card--actions {
+    display: none;
+  }
+
+  .mcp-ask-offer {
+    grid-column: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    background: color-mix(in srgb, var(--mcp-ask-accent) 6%, var(--mcp-ask-surface));
+  }
+
+  .mcp-ask-offer__text {
+    margin: 0;
+    color: var(--mcp-ask-text);
+    font-weight: 600;
+  }
+}
+
+.mcp-ask-chat .mcp-ask-chip,
+.mcp-ask .mcp-ask-chip {
+  padding: 7px 14px;
+  border: 1px solid color-mix(in srgb, var(--mcp-ask-accent) 35%, var(--mcp-ask-surface));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mcp-ask-accent) 6%, var(--mcp-ask-surface));
+  color: var(--mcp-ask-accent);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--mcp-ask-accent);
+    color: var(--mcp-ask-on-accent);
+  }
+}
+
+/* Helpers to try, with the search box: below a box, above an open floating button */
+.mcp-ask .mcp-ask__agents {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-start: 8px;
+
+  .mcp-ask-try__label {
+    inline-size: 100%;
+    color: var(--mcp-ask-muted);
+    font-size: 13px;
+  }
+}
+
+.mcp-ask--box .mcp-ask__agents,
+.mcp-ask[data-state="open"] .mcp-ask__agents {
+  display: flex;
+}
+
+.mcp-ask--has-history .mcp-ask__agents {
+  display: none;
+}
+
+.mcp-ask--float .mcp-ask__agents,
+.mcp-ask:not(.mcp-ask--box, .mcp-ask--float) .mcp-ask__agents {
+  position: absolute;
+  z-index: 2;
+  inline-size: max-content;
+  max-inline-size: min(360px, calc(100vw - 32px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--mcp-ask-glass);
+  backdrop-filter: var(--mcp-ask-frost);
+  box-shadow: var(--mcp-ask-lift);
+}
+
+.mcp-ask--float .mcp-ask__agents {
+  inset-block-end: calc(100% + 10px);
+  inset-inline-end: 0;
+}
+
+.mcp-ask:not(.mcp-ask--box, .mcp-ask--float) .mcp-ask__agents {
+  inset-block-start: calc(100% + 8px);
+  inset-inline-end: 0;
+}
+
+@media (max-width: 640px) {
+  .mcp-ask-chat .mcp-ask-offer {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mcp-ask-chat .mcp-ask-card__rows {
+    grid-template-columns: minmax(0, 1fr);
+
+    dd {
+      margin-block-end: 6px;
+    }
+  }
+}
+
+/* ---------- A report written for the visitor, in the conversation ---------- */
+
+.mcp-ask-chat .mcp-ask-report {
+  --report: var(--report-colour, var(--mcp-ask-accent));
+
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 95% 0, color-mix(in srgb, var(--report) 22%, transparent), transparent 45%),
+    var(--mcp-ask-surface);
+  box-shadow: var(--mcp-ask-lift);
+
+  .mcp-ask-report__head {
+    display: grid;
+    gap: 6px;
+  }
+
+  .mcp-ask-report__type {
+    inline-size: 96px;
+    block-size: auto;
+    border-radius: 14px;
+  }
+
+  .mcp-ask-report__title {
+    margin: 0;
+    color: var(--mcp-ask-heading);
+    font-size: 20px;
+    line-height: 1.35;
+  }
+
+  .mcp-ask-report__summary {
+    margin: 0;
+    color: var(--mcp-ask-muted);
+  }
+
+  .mcp-ask-report__scores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .mcp-ask-report__score {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--report) 8%, var(--mcp-ask-surface));
+    font-size: 14px;
+
+    strong {
+      color: var(--report);
+    }
+  }
+
+  .mcp-ask-report__bar {
+    position: relative;
+    grid-column: 1 / -1;
+    block-size: 6px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--mcp-ask-soft);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      inline-size: var(--score, 0%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mcp-ask-accent), var(--report));
+      transition: inline-size 0.8s var(--mcp-ask-ease);
+    }
+  }
+
+  .mcp-ask-report__section {
+    padding-block-start: 14px;
+    border-block-start: 1px solid var(--mcp-ask-line);
+
+    h5 {
+      margin: 0 0 10px;
+      color: var(--mcp-ask-heading);
+      font-size: 17px;
+    }
+  }
+
+  .mcp-ask-report__figure:empty {
+    display: none;
+  }
+
+  .mcp-ask-report__text > :last-child {
+    margin-block-end: 0;
+  }
+
+  .mcp-ask-report__sources {
+    font-size: 14px;
+
+    h5 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    ol {
+      margin: 0;
+      padding-inline-start: 20px;
+      list-style: decimal;
+    }
+
+    a {
+      color: var(--mcp-ask-link);
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .mcp-ask-card__buttons:empty,
+  .mcp-ask-report__foot:empty {
+    display: none;
+  }
+
+  .mcp-ask-report__foot {
+    color: var(--mcp-ask-muted);
+    font-size: 14px;
+
+    p {
+      margin: 6px 0 0;
+    }
+  }
+
+  .mcp-ask-report__open {
+    color: var(--mcp-ask-link);
+    font-weight: 600;
+  }
+
+  a.mcp-ask-card__primary {
+    color: var(--mcp-ask-on-accent);
+    text-decoration: none;
+  }
+}
+
+/* Embedded on another website: the frame is the button's size until the conversation opens, so
+   the button keeps to its corner of the frame */
+.mcp-ask-embedded .mcp-ask--float {
+  inset-block-end: 20px;
+}
+
+.mcp-ask-embedded .mcp-ask--float[data-side="right"] {
+  right: 20px;
+}
+
+.mcp-ask-embedded .mcp-ask--float[data-side="left"] {
+  left: 20px;
+}
+
+/* ---------- Pet ----------
+   The floating button as a pet: closed, the pet is the button (no circle, no icon); open, it
+   perches on the end of the search box. Two layers cross-fade between its moments. */
+.mcp-ask--pet {
+  --mcp-ask-pet-size: 96px;
+}
+
+@media (max-width: 640px) {
+  .mcp-ask--pet {
+    --mcp-ask-pet-size: var(--mcp-ask-pet-mobile, 72px);
+  }
+}
+
+.mcp-ask--float.mcp-ask--pet[data-state="idle"] {
+  --mcp-ask-size: var(--mcp-ask-pet-size);
+
+  .mcp-ask__form {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .mcp-ask__toggle {
+    inline-size: var(--mcp-ask-pet-size);
+    block-size: var(--mcp-ask-pet-size);
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
+
+    svg {
+      opacity: 0;
+    }
+  }
+
+  /* A conversation to go back to: the dot sits on the pet's shoulder */
+  &.mcp-ask--has-history .mcp-ask__toggle::after {
+    inset-block-start: 8%;
+    inset-inline-end: 8%;
+  }
+}
+
+.mcp-ask-pet {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  z-index: 3;
+  inline-size: var(--mcp-ask-pet-size);
+  block-size: var(--mcp-ask-pet-size);
+  pointer-events: none;
+  transition:
+    inline-size 0.35s var(--mcp-ask-ease),
+    block-size 0.35s var(--mcp-ask-ease),
+    inset-block-end 0.35s var(--mcp-ask-ease);
+}
+
+.mcp-ask-pet__frame {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.18s linear;
+  user-select: none;
+
+  &.is-on {
+    opacity: 1;
+  }
+}
+
+/* Open: perched on the button end of the search box */
+.mcp-ask--pet:not([data-state="idle"]) .mcp-ask-pet {
+  inline-size: 64px;
+  block-size: 64px;
+  inset-block-end: calc(100% - 12px);
+}
+
+.mcp-ask--pet[data-side="left"] .mcp-ask-pet {
+  inset-inline: 0 auto;
+}
+
+/* Helpers listed above the box stay clear of the pet */
+.mcp-ask--pet .mcp-ask__agents {
+  inset-block-end: calc(100% + 60px);
+}
+
+/* A word beside the pet on the first visit */
+.mcp-ask-pet__bubble {
+  position: absolute;
+  inset-block-end: calc(100% + 6px);
+  inset-inline-end: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  inline-size: max-content;
+  max-inline-size: min(240px, calc(100vw - 40px));
+  padding: 8px 8px 8px 14px;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--mcp-ask-surface);
+  box-shadow: var(--mcp-ask-lift);
+  color: var(--mcp-ask-text);
+  font-size: 14px;
+  animation: mcp-ask-pop 0.35s var(--mcp-ask-ease);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.mcp-ask--pet[data-side="left"] .mcp-ask-pet__bubble {
+  inset-inline: 0 auto;
+  border-radius: 14px 14px 14px 4px;
+}
+
+.mcp-ask-pet__bubble-close {
+  display: grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mcp-ask-muted);
+  cursor: pointer;
+
+  svg {
+    inline-size: 14px;
+    block-size: 14px;
+  }
+}
+
+/* The pet in the head of the conversation, instead of the dot */
+.mcp-ask-chat__pet {
+  position: relative;
+  flex: none;
+  inline-size: 44px;
+  block-size: 44px;
+  margin-block: -8px;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.mcp-ask-chat__head:has(.mcp-ask-chat__pet:not([hidden])) .mcp-ask-chat__title::before {
+  display: none;
+}
+
+/* ---------- Answers: text, rating and offer in one column ----------
+   The pages beside an answer may be a long list; what follows the answer (its rating, a helper
+   offered) stays right under the text instead of waiting for the list to end. */
+.mcp-ask-msg__main {
+  display: grid;
+  gap: 24px;
+  min-inline-size: 0;
+  align-content: start;
+}
+
+.mcp-ask-chat .mcp-ask-msg__main > .mcp-ask-offer {
+  grid-column: auto;
+}
+
+/* ---------- A helper offered: face, name, words, button ---------- */
+.mcp-ask-chat .mcp-ask-offer {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--mcp-ask-accent) 22%, var(--mcp-ask-line));
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--mcp-ask-accent) 10%, transparent), transparent 60%),
+    var(--mcp-ask-surface);
+  transition: opacity 0.2s, filter 0.2s;
+
+  &.mcp-ask-offer--plain {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  &.mcp-ask-offer--done {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  &.mcp-ask-offer--done.mcp-ask-offer--plain {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Waiting for the agent to answer the press */
+  &.mcp-ask-offer--waiting .mcp-ask-agent-start {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.mcp-ask-offer__face {
+  display: grid;
+  place-items: center;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--mcp-ask-accent) 8%, var(--mcp-ask-surface));
+  overflow: hidden;
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+}
+
+.mcp-ask-offer__words {
+  display: grid;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.mcp-ask-chat .mcp-ask-offer__title {
+  color: var(--mcp-ask-heading, var(--mcp-ask-text));
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.mcp-ask-chat .mcp-ask-offer .mcp-ask-offer__text {
+  margin: 0;
+  color: var(--mcp-ask-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* The person's window opened from the offer: its state in the same block */
+.mcp-ask-offer .mcp-ask-handoff {
+  margin-block-start: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .mcp-ask-chat .mcp-ask-offer,
+  .mcp-ask-chat .mcp-ask-offer.mcp-ask-offer--plain {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    .mcp-ask-agent-start {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+  }
+
+  .mcp-ask-chat .mcp-ask-offer.mcp-ask-offer--plain {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mcp-ask-offer__face {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+}
+
+/* ---------- Faces of agents in chips, the head and the bar ---------- */
+.mcp-ask-chip:has(.mcp-ask-chip__face),
+.mcp-ask-chat__human:has(.mcp-ask-chip__face) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-inline-start: 5px;
+}
+
+.mcp-ask-chip__face,
+.mcp-ask-chat__agent-face {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  border-radius: 50%;
+  background: var(--mcp-ask-surface);
+  overflow: hidden;
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+}
+
+.mcp-ask-chat__agent-name:has(.mcp-ask-chat__agent-face) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* An agent helping: its face instead of the spark */
+.mcp-ask-msg .mcp-ask-msg__token.mcp-ask-msg__token--face {
+  background: var(--mcp-ask-surface);
+  box-shadow: 0 0 0 1px var(--mcp-ask-line), 0 4px 12px color-mix(in srgb, var(--mcp-ask-accent) 18%, transparent);
+  overflow: visible;
+}
+
+.mcp-ask-msg__face {
+  display: grid;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+}
+
+/* ---------- While an answer is written or an agent is busy, agents wait ---------- */
+.mcp-ask-busy :is(.mcp-ask-chip, .mcp-ask-agent-start, .mcp-ask-chat__human) {
+  filter: grayscale(1);
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+  transition: filter 0.3s, opacity 0.3s;
+}
+
+/* ---------- Thinking: the spark turns a few times, stops, flashes, and turns again ---------- */
+.mcp-ask-msg.mcp-ask-msg--waiting .mcp-ask-msg__token:not(.mcp-ask-msg__token--face) svg {
+  animation: mcp-ask-think 3.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes mcp-ask-think {
+  0% {
+    transform: rotate(0deg) scale(1);
+    filter: none;
+  }
+
+  55% {
+    transform: rotate(720deg) scale(1);
+    filter: none;
+  }
+
+  62% {
+    transform: rotate(720deg) scale(1.45);
+    filter: drop-shadow(0 0 6px #fff) brightness(1.6);
+  }
+
+  70% {
+    transform: rotate(720deg) scale(1);
+    filter: none;
+  }
+
+  100% {
+    transform: rotate(720deg) scale(1);
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcp-ask-msg.mcp-ask-msg--waiting .mcp-ask-msg__token svg {
+    animation: none;
+  }
+}
+
+/* The pages not shown yet, in one pill: a mark for the first few, and how many there are */
+.mcp-ask-msg .mcp-ask-msg__more:has(.mcp-ask-msg__more-marks) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 6px;
+  border: 1px solid var(--mcp-ask-line);
+  border-radius: 999px;
+  background: var(--mcp-ask-surface);
+  box-shadow: var(--mcp-ask-lift);
+  color: var(--mcp-ask-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mcp-ask-msg__more-marks {
+  display: inline-flex;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.mcp-ask-msg__more-mark {
+  display: grid;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  margin-inline-start: -8px;
+  border: 2px solid var(--mcp-ask-surface);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--mcp-ask-accent) 14%, var(--mcp-ask-surface));
+  color: var(--mcp-ask-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+
+  &:first-child {
+    margin-inline-start: 0;
+  }
+
+  &:nth-child(2) {
+    background: color-mix(in srgb, var(--mcp-ask-accent-2, var(--mcp-ask-accent)) 18%, var(--mcp-ask-surface));
+  }
+
+  &:nth-child(3) {
+    background: color-mix(in srgb, var(--mcp-ask-accent-3, var(--mcp-ask-accent)) 18%, var(--mcp-ask-surface));
+  }
+}
+
+/* ---------- Faces in the conversation: half as large again as the spark, a rounded square ---------- */
+.mcp-ask-msg--bot:has(> .mcp-ask-msg__token--face) {
+  --mcp-ask-token: 48px;
+}
+
+.mcp-ask-msg .mcp-ask-msg__token.mcp-ask-msg__token--face {
+  inline-size: 48px;
+  block-size: 48px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mcp-ask-accent) 7%, var(--mcp-ask-surface));
+  box-shadow: 0 0 0 1px var(--mcp-ask-line), 0 6px 16px color-mix(in srgb, var(--mcp-ask-accent) 14%, transparent);
+  overflow: hidden;
+
+  &::after {
+    border-radius: 18px;
+  }
+}
+
+.mcp-ask-msg__face-picture,
+.mcp-ask-msg .mcp-ask-msg__face {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+}
+
+.mcp-ask-msg__face-picture {
+  object-fit: contain;
+}
+
+/* ---------- The whole pet at the right of the window while the conversation is open ---------- */
+.mcp-ask-chat__side-pet {
+  position: fixed;
+  inset-block-end: 96px;
+  inset-inline-end: max(16px, calc((100vw - 960px) / 4 - 90px));
+  z-index: 2;
+  display: none;
+  inline-size: clamp(150px, calc((100vw - 960px) / 2 - 48px), 240px);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+@media (min-width: 1360px) {
+  .mcp-ask-chat[open] .mcp-ask-chat__side-pet:not([hidden]) {
+    display: block;
+  }
+
+  /* Then the head needs no face of its own */
+  .mcp-ask-chat .mcp-ask-chat__pet {
+    display: none;
+  }
+
+  .mcp-ask-chat__head:has(.mcp-ask-chat__pet) .mcp-ask-chat__title::before {
+    display: block;
+  }
+}
+
+/* Narrower: the pet is a rounded square in the head */
+.mcp-ask-chat .mcp-ask-chat__pet {
+  inline-size: 48px;
+  block-size: 48px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mcp-ask-accent) 7%, var(--mcp-ask-surface));
+  box-shadow: 0 0 0 1px var(--mcp-ask-line);
+  overflow: hidden;
+}
+
+/* Faces of agents on their offer are thumbnails too */
+.mcp-ask-offer__face {
+  border-radius: 14px;
+}
+
+/* Nothing more to show: no pill (its own display must not bring it back) */
+.mcp-ask-msg .mcp-ask-msg__more[hidden] {
+  display: none;
+}
+
+/* Open, the pet stays as it was and the search box opens beside it (0.13.1) */
+.mcp-ask--float.mcp-ask--pet:not([data-state="idle"]) {
+  .mcp-ask-pet {
+    inline-size: var(--mcp-ask-pet-size);
+    block-size: var(--mcp-ask-pet-size);
+    inset-block-end: 0;
+  }
+
+  .mcp-ask__form {
+    inset-inline-end: calc(var(--mcp-ask-pet-size) + 8px);
+    inline-size: min(var(--mcp-ask-width), 100vw - 48px - var(--mcp-ask-pet-size));
+  }
+
+  .mcp-ask__agents {
+    inset-block-end: calc(100% + 10px);
+    inset-inline-end: calc(var(--mcp-ask-pet-size) + 8px);
+  }
+}
+
+.mcp-ask--float.mcp-ask--pet[data-side="left"]:not([data-state="idle"]) {
+  .mcp-ask__form {
+    inset-inline: calc(var(--mcp-ask-pet-size) + 8px) auto;
+  }
+
+  .mcp-ask__agents {
+    inset-inline: calc(var(--mcp-ask-pet-size) + 8px) auto;
+  }
+}

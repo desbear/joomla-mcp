@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<field name="name" type="text" filter="string"
+		label="COM_MCPASK_CONFIG_WEBSITE_NAME" hint="COM_MCPASK_CONFIG_PEER_NAME_HINT" />
+	<field name="url" type="url" filter="url" validate="url" required="true"
+		label="COM_MCPASK_CONFIG_WEBSITE_URL" hint="https://www.example.com/" />
+	<field name="selector" type="text" filter="string" maxlength="200"
+		label="COM_MCPASK_CONFIG_WEBSITE_SELECTOR" hint="article, .item-page" />
+	<field name="limit" type="number" default="200" min="1" max="2000" filter="integer"
+		label="COM_MCPASK_CONFIG_WEBSITE_LIMIT" />
+	<field name="depth" type="number" default="3" min="1" max="6" filter="integer"
+		label="COM_MCPASK_CONFIG_WEBSITE_DEPTH" />
+	<field name="enabled" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+		label="JENABLED">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+</form>

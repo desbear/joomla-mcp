@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="main">
+		<field name="title" type="text" required="true" maxlength="255" filter="string"
+			label="COM_MCPASK_AGENT_TITLE" description="COM_MCPASK_AGENT_TITLE_DESC" />
+		<field name="published" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+			label="JPUBLISHED">
+			<option value="0">JUNPUBLISHED</option>
+			<option value="1">JPUBLISHED</option>
+		</field>
+	</fieldset>
+	<fields name="params">
+		<fieldset name="talk" label="COM_MCPASK_AGENT_TALK" addfieldprefix="Gss\Component\Mcpask\Administrator\Field">
+			<field name="avatar" type="mcpaskpet" default="" none="COM_MCPASK_AGENT_AVATAR_NONE"
+				label="COM_MCPASK_AGENT_AVATAR" description="COM_MCPASK_AGENT_AVATAR_DESC">
+			</field>
+			<field name="avatar_image" type="media" types="images" preview="tooltip" showon="avatar:"
+				label="COM_MCPASK_AGENT_AVATAR_IMAGE" description="COM_MCPASK_AGENT_AVATAR_IMAGE_DESC" />
+			<field name="opening" type="textarea" rows="3" filter="string"
+				label="COM_MCPASK_AGENT_OPENING" description="COM_MCPASK_AGENT_OPENING_DESC" />
+			<field name="done_text" type="textarea" rows="3" filter="string"
+				label="COM_MCPASK_AGENT_DONE" description="COM_MCPASK_AGENT_DONE_DESC" />
+		</fieldset>
+		<fieldset name="triggers" label="COM_MCPASK_AGENT_TRIGGERS" description="COM_MCPASK_AGENT_TRIGGERS_DESC">
+			<field name="suggest" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+				label="COM_MCPASK_AGENT_SUGGEST" description="COM_MCPASK_AGENT_SUGGEST_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="suggest_label" type="text" maxlength="100" filter="string" showon="suggest:1"
+				label="COM_MCPASK_AGENT_SUGGEST_LABEL" description="COM_MCPASK_AGENT_SUGGEST_LABEL_DESC" />
+			<field name="phrases" type="textarea" rows="4" filter="string"
+				label="COM_MCPASK_AGENT_PHRASES" description="COM_MCPASK_AGENT_PHRASES_DESC" />
+			<field name="phrase_score" type="number" default="0.6" min="0.3" max="0.95" step="0.01" filter="float" validate="number"
+				label="COM_MCPASK_AGENT_PHRASE_SCORE" description="COM_MCPASK_AGENT_PHRASE_SCORE_DESC" />
+			<field name="ai_offer" type="radio" layout="joomla.form.field.radio.switcher" default="0"
+				label="COM_MCPASK_AGENT_AI_OFFER" description="COM_MCPASK_AGENT_AI_OFFER_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="ai_hint" type="textarea" rows="2" filter="string" showon="ai_offer:1"
+				label="COM_MCPASK_AGENT_AI_HINT" description="COM_MCPASK_AGENT_AI_HINT_DESC" />
+			<field name="offer_text" type="text" maxlength="300" filter="string"
+				label="COM_MCPASK_AGENT_OFFER_TEXT" description="COM_MCPASK_AGENT_OFFER_TEXT_DESC" />
+			<field name="offer_button" type="text" maxlength="60" filter="string"
+				label="COM_MCPASK_AGENT_OFFER_BUTTON" />
+		</fieldset>
+		<fieldset name="report" label="COM_MCPASK_AGENT_REPORT" description="COM_MCPASK_AGENT_REPORT_DESC">
+			<field name="report" type="radio" layout="joomla.form.field.radio.switcher" default="0"
+				label="COM_MCPASK_REPORT_ON" description="COM_MCPASK_REPORT_ON_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="report_title" type="text" maxlength="200" filter="string" default="你的數位轉型類型：{type}" showon="report:1"
+				label="COM_MCPASK_REPORT_TITLE" description="COM_MCPASK_REPORT_TITLE_DESC" />
+			<field name="report_intro" type="textarea" rows="2" filter="string" showon="report:1"
+				label="COM_MCPASK_REPORT_INTRO" description="COM_MCPASK_REPORT_INTRO_DESC" />
+			<field name="report_types" type="subform" multiple="true" min="0" max="8" layout="joomla.form.field.subform.repeatable" showon="report:1"
+				label="COM_MCPASK_REPORT_TYPES" description="COM_MCPASK_REPORT_TYPES_DESC" default="{&quot;types0&quot;: {&quot;name&quot;: &quot;起步探索型&quot;, &quot;summary&quot;: &quot;剛開始思考數位化，適合從最常用、最容易見效的流程開始。&quot;, &quot;color&quot;: &quot;#3b82f6&quot;, &quot;image&quot;: &quot;&quot;}, &quot;types1&quot;: {&quot;name&quot;: &quot;流程整合型&quot;, &quot;summary&quot;: &quot;已有部分系統，下一步是把分散的流程與資料串起來。&quot;, &quot;color&quot;: &quot;#8b5cf6&quot;, &quot;image&quot;: &quot;&quot;}, &quot;types2&quot;: {&quot;name&quot;: &quot;數據驅動型&quot;, &quot;summary&quot;: &quot;流程大多已數位化，適合用數據與 AI 進一步提升決策與效率。&quot;, &quot;color&quot;: &quot;#10b981&quot;, &quot;image&quot;: &quot;&quot;}}">
+				<form>
+					<field name="name" type="text" maxlength="60" filter="string" label="COM_MCPASK_REPORT_TYPE_NAME" required="true" />
+					<field name="summary" type="textarea" rows="2" filter="string" label="COM_MCPASK_REPORT_TYPE_SUMMARY" />
+					<field name="color" type="color" format="hex" default="#3b82f6" label="COM_MCPASK_REPORT_TYPE_COLOR" />
+					<field name="image" type="media" preview="tooltip" label="COM_MCPASK_REPORT_TYPE_IMAGE" />
+				</form>
+			</field>
+			<field name="report_dimensions" type="subform" multiple="true" min="0" max="8" layout="joomla.form.field.subform.repeatable-table" showon="report:1"
+				label="COM_MCPASK_REPORT_DIMENSIONS" description="COM_MCPASK_REPORT_DIMENSIONS_DESC" default="{&quot;dimensions0&quot;: {&quot;name&quot;: &quot;流程數位化&quot;, &quot;description&quot;: &quot;日常作業（簽核、表單、文件）在線上完成的程度&quot;}, &quot;dimensions1&quot;: {&quot;name&quot;: &quot;資料整合&quot;, &quot;description&quot;: &quot;各部門資料能互通、集中查詢的程度&quot;}, &quot;dimensions2&quot;: {&quot;name&quot;: &quot;協作效率&quot;, &quot;description&quot;: &quot;跨部門、跨地點協作與追蹤的順暢程度&quot;}}">
+				<form>
+					<field name="name" type="text" maxlength="40" filter="string" label="COM_MCPASK_REPORT_DIMENSION_NAME" required="true" />
+					<field name="description" type="text" maxlength="200" filter="string" label="COM_MCPASK_REPORT_DIMENSION_DESC" />
+				</form>
+			</field>
+			<field name="report_sections" type="subform" multiple="true" min="1" max="10" layout="joomla.form.field.subform.repeatable" showon="report:1"
+				label="COM_MCPASK_REPORT_SECTIONS" description="COM_MCPASK_REPORT_SECTIONS_DESC" default="{&quot;sections0&quot;: {&quot;title&quot;: &quot;你的現況分析&quot;, &quot;brief&quot;: &quot;依剛剛的回答，分析目前的工作方式、可能的痛點與造成的原因，具體說明每一點從哪個回答看出來。&quot;, &quot;min&quot;: 300, &quot;max&quot;: 500, &quot;image&quot;: &quot;generate&quot;, &quot;image_prompt&quot;: &quot;一張溫暖、扁平風格的插畫，呈現一個 {size} 規模的團隊正在整理工作流程，畫面乾淨、明亮&quot;, &quot;recommend&quot;: 0}, &quot;sections1&quot;: {&quot;title&quot;: &quot;適合你的方向&quot;, &quot;brief&quot;: &quot;說明最適合的數位轉型方向與優先順序，每一項都說明為什麼適合這位訪客、可以帶來什麼改變。&quot;, &quot;min&quot;: 300, &quot;max&quot;: 500, &quot;image&quot;: &quot;type&quot;, &quot;image_prompt&quot;: &quot;&quot;, &quot;recommend&quot;: 0}, &quot;sections2&quot;: {&quot;title&quot;: &quot;推薦方案&quot;, &quot;brief&quot;: &quot;從網站內容中挑出 2–3 個最適合的方案，各自說明適合的理由與可以解決的問題，並引用來源。&quot;, &quot;min&quot;: 300, &quot;max&quot;: 600, &quot;image&quot;: &quot;none&quot;, &quot;image_prompt&quot;: &quot;&quot;, &quot;recommend&quot;: 1}, &quot;sections3&quot;: {&quot;title&quot;: &quot;下一步&quot;, &quot;brief&quot;: &quot;列出 3 個具體可行的下一步行動，由易到難。&quot;, &quot;min&quot;: 120, &quot;max&quot;: 250, &quot;image&quot;: &quot;none&quot;, &quot;image_prompt&quot;: &quot;&quot;, &quot;recommend&quot;: 0}}">
+				<form>
+					<field name="title" type="text" maxlength="100" filter="string" label="COM_MCPASK_REPORT_SECTION_TITLE" required="true" />
+					<field name="brief" type="textarea" rows="3" filter="string" label="COM_MCPASK_REPORT_SECTION_BRIEF" description="COM_MCPASK_REPORT_SECTION_BRIEF_DESC" />
+					<field name="min" type="number" default="300" min="50" max="2000" filter="integer" label="COM_MCPASK_REPORT_SECTION_MIN" />
+					<field name="max" type="number" default="500" min="80" max="3000" filter="integer" label="COM_MCPASK_REPORT_SECTION_MAX" />
+					<field name="image" type="list" default="none" label="COM_MCPASK_REPORT_SECTION_IMAGE">
+						<option value="none">COM_MCPASK_REPORT_IMAGE_NONE</option>
+						<option value="type">COM_MCPASK_REPORT_IMAGE_TYPE</option>
+						<option value="generate">COM_MCPASK_REPORT_IMAGE_GENERATE</option>
+					</field>
+					<field name="image_prompt" type="textarea" rows="2" filter="string" showon="image:generate" label="COM_MCPASK_REPORT_SECTION_PROMPT" description="COM_MCPASK_REPORT_SECTION_PROMPT_DESC" />
+					<field name="recommend" type="radio" layout="joomla.form.field.radio.switcher" default="0" label="COM_MCPASK_REPORT_SECTION_RECOMMEND" description="COM_MCPASK_REPORT_SECTION_RECOMMEND_DESC">
+						<option value="0">JNO</option>
+						<option value="1">JYES</option>
+					</field>
+				</form>
+			</field>
+			<field name="report_categories" type="category" extension="com_content" multiple="true" layout="joomla.form.field.list-fancy-select" showon="report:1"
+				label="COM_MCPASK_REPORT_CATEGORIES" description="COM_MCPASK_REPORT_CATEGORIES_DESC" />
+			<field name="report_actions" type="subform" multiple="true" min="0" max="4" layout="joomla.form.field.subform.repeatable-table" showon="report:1"
+				label="COM_MCPASK_REPORT_ACTIONS" description="COM_MCPASK_REPORT_ACTIONS_DESC" default="{&quot;actions0&quot;: {&quot;label&quot;: &quot;預約顧問諮詢&quot;, &quot;url&quot;: &quot;/&quot;}}">
+				<form>
+					<field name="label" type="text" maxlength="40" filter="string" label="COM_MCPASK_REPORT_ACTION_LABEL" required="true" />
+					<field name="url" type="text" filter="string" maxlength="500" hint="https://… | /… | #mcp-ask-handoff" label="COM_MCPASK_REPORT_ACTION_URL" required="true" />
+				</form>
+			</field>
+			<field name="report_images_per_day" type="number" default="30" min="0" max="1000" filter="integer" validate="number" showon="report:1"
+				label="COM_MCPASK_REPORT_IMAGES_PER_DAY" description="COM_MCPASK_REPORT_IMAGES_PER_DAY_DESC" />
+			<field name="report_days" type="number" default="30" min="1" max="365" filter="integer" validate="number" showon="report:1"
+				label="COM_MCPASK_REPORT_DAYS" description="COM_MCPASK_REPORT_DAYS_DESC" />
+			<field name="report_email" type="radio" layout="joomla.form.field.radio.switcher" default="1" showon="report:1"
+				label="COM_MCPASK_REPORT_EMAIL" description="COM_MCPASK_REPORT_EMAIL_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+		<fieldset name="scope" label="COM_MCPASK_AGENT_SCOPE">
+			<field name="languages" type="contentlanguage" multiple="true" layout="joomla.form.field.list-fancy-select"
+				label="COM_MCPASK_AGENT_LANGUAGES" description="COM_MCPASK_AGENT_LANGUAGES_DESC" />
+			<field name="access" type="accesslevel" default="1"
+				label="JFIELD_ACCESS_LABEL" description="COM_MCPASK_AGENT_ACCESS_DESC" />
+			<field name="per_day" type="number" default="5" min="1" max="100" filter="integer" validate="number"
+				label="COM_MCPASK_AGENT_PER_DAY" description="COM_MCPASK_AGENT_PER_DAY_DESC" />
+		</fieldset>
+	</fields>
+</form>

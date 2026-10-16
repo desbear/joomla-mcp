@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>首頁 - mod_mcp_ask 示範</title>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="../../src/mod_mcp_ask/media/css/ask.css">
+<script src="../../src/mod_mcp_ask/media/js/ask-reveal.js"></script>
+<script src="../../src/mod_mcp_ask/media/js/ask-demo.js" defer></script>
+<script src="../../src/mod_mcp_ask/media/js/ask.js" defer></script>
+</head>
+<body>
+<header class="site-head">
+  <a class="site-head__logo" href="index.html">示範官網</a>
+  <nav class="site-head__nav">
+    <a href="article.html?p=product">產品介紹</a>
+    <a href="article.html?p=pricing">方案與價格</a>
+    <a href="article.html?p=support">支援中心</a>
+  </nav>
+  <!-- 圖示模式：點了才展開 -->
+  <div class="mcp-ask" data-mcp-ask data-mode="icon" data-state="idle" data-ufo="../../src/mod_mcp_ask/media/images/ufo.png"
+       data-demo-sources='[{"title":"產品介紹","url":"article.html?p=product","section":"產品介紹 › 功能總覽"},{"title":"方案與價格","url":"article.html?p=pricing"},{"title":"支援中心：常見問題","url":"article.html?p=support"}]'
+       data-strings='{"title":"詢問官網內容","placeholder":"想了解什麼？","followup":"繼續追問…","empty":"想了解什麼？","send":"送出","close":"關閉","newChat":"新對話","resume":"開啟對話","sources":"資料來源","here":"這裡問","more":"顯示全部 %s 篇","less":"收合","searching":"正在搜尋官網內容…","note":"回答由 AI 產生，可能有誤，請以來源頁面為準。","noAnswer":"沒有取得回答，請再試一次。","error":"發生錯誤，請再試一次。","unconfigured":"問答服務尚未設定。"}'>
+    <form class="mcp-ask__form" role="search">
+      <button type="button" class="mcp-ask__toggle" aria-label="詢問官網內容" aria-expanded="false">
+        <svg class="mcp-ask__ai" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.2l-4.3 3.4V17H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z"/><path class="mcp-ask__spark" d="M10.4 6.9c.38 2.07 1.45 3.14 3.5 3.5-2.05.37-3.12 1.44-3.5 3.5-.37-2.06-1.44-3.13-3.5-3.5 2.06-.36 3.13-1.43 3.5-3.5z"/><path class="mcp-ask__spark mcp-ask__spark--small" d="M16.1 6.2c.18.95.66 1.43 1.6 1.6-.94.18-1.42.66-1.6 1.6-.17-.94-.65-1.42-1.6-1.6.95-.17 1.43-.65 1.6-1.6z"/></svg>
+      </button>
+      <input class="mcp-ask__input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" maxlength="500" placeholder="想了解什麼？" aria-label="想了解什麼？">
+      <span class="mcp-ask-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <button type="submit" class="mcp-ask__submit" aria-label="送出">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+    </form>
+    <span class="mcp-ask__status" role="status"></span>
+  </div>
+</header>
+
+<main class="site-main">
+  <section class="site-hero">
+    <h1>有問題，直接問官網</h1>
+    <p>下方是「搜尋框模式」，右上角是「圖示模式」，右下角是「浮動按鈕模式」，三者共用同一段對話。</p>
+    <!-- 搜尋框模式：一直展開 -->
+    <div class="mcp-ask mcp-ask--box" data-mcp-ask data-mode="box" data-state="idle">
+      <form class="mcp-ask__form" role="search">
+        <button type="button" class="mcp-ask__toggle" aria-label="詢問官網內容">
+          <svg class="mcp-ask__ai" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.2l-4.3 3.4V17H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z"/><path class="mcp-ask__spark" d="M10.4 6.9c.38 2.07 1.45 3.14 3.5 3.5-2.05.37-3.12 1.44-3.5 3.5-.37-2.06-1.44-3.13-3.5-3.5 2.06-.36 3.13-1.43 3.5-3.5z"/><path class="mcp-ask__spark mcp-ask__spark--small" d="M16.1 6.2c.18.95.66 1.43 1.6 1.6-.94.18-1.42.66-1.6 1.6-.17-.94-.65-1.42-1.6-1.6.95-.17 1.43-.65 1.6-1.6z"/></svg>
+        </button>
+        <input class="mcp-ask__input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" maxlength="500" placeholder="想了解什麼？" aria-label="想了解什麼？">
+        <span class="mcp-ask-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <button type="submit" class="mcp-ask__submit" aria-label="送出">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </form>
+      <span class="mcp-ask__status" role="status"></span>
+    </div>
+  </section>
+
+  <section class="site-cards">
+    <a href="article.html?p=product"><h2>產品介紹</h2><p>功能總覽與適用情境。</p></a>
+    <a href="article.html?p=pricing"><h2>方案與價格</h2><p>各方案的差異與計費方式。</p></a>
+    <a href="article.html?p=support"><h2>支援中心</h2><p>常見問題與操作教學。</p></a>
+  </section>
+</main>
+
+<!-- 浮動按鈕模式：固定在視窗右下角 -->
+<div class="mcp-ask mcp-ask--float" data-mcp-ask data-mode="float" data-state="idle">
+  <form class="mcp-ask__form" role="search">
+    <button type="button" class="mcp-ask__toggle" aria-label="詢問官網內容" aria-expanded="false">
+      <svg class="mcp-ask__ai" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.2l-4.3 3.4V17H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z"/><path class="mcp-ask__spark" d="M10.4 6.9c.38 2.07 1.45 3.14 3.5 3.5-2.05.37-3.12 1.44-3.5 3.5-.37-2.06-1.44-3.13-3.5-3.5 2.06-.36 3.13-1.43 3.5-3.5z"/><path class="mcp-ask__spark mcp-ask__spark--small" d="M16.1 6.2c.18.95.66 1.43 1.6 1.6-.94.18-1.42.66-1.6 1.6-.17-.94-.65-1.42-1.6-1.6.95-.17 1.43-.65 1.6-1.6z"/></svg>
+      <svg class="mcp-ask__send" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>
+    <input class="mcp-ask__input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" maxlength="500" placeholder="想了解什麼？" aria-label="想了解什麼？">
+    <span class="mcp-ask-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <button type="submit" class="mcp-ask__submit" aria-label="送出">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>
+  </form>
+  <span class="mcp-ask__status" role="status"></span>
+</div>
+</body>
+</html>

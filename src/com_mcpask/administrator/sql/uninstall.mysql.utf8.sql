@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS `#__mcpask_chunks`;
+DROP TABLE IF EXISTS `#__mcpask_documents`;
+DROP TABLE IF EXISTS `#__mcpask_log`;
+DROP TABLE IF EXISTS `#__mcpask_state`;
+DROP TABLE IF EXISTS `#__mcpask_hints`;
+DROP TABLE IF EXISTS `#__mcpask_agents`;
+DROP TABLE IF EXISTS `#__mcpask_agent_sessions`;
+DROP TABLE IF EXISTS `#__mcpask_agent_events`;
+DROP TABLE IF EXISTS `#__mcpask_reports`;
+DROP TABLE IF EXISTS `#__mcpask_handoffs`;
+DROP TABLE IF EXISTS `#__mcpask_embeds`;
+DROP TABLE IF EXISTS `#__mcpask_pets`;

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="main">
+		<field name="title" type="text" required="true" maxlength="255" filter="string"
+			label="COM_MCPASK_EMBED_TITLE" description="COM_MCPASK_EMBED_TITLE_DESC" />
+		<field name="domains" type="textarea" rows="4" required="true" filter="string"
+			label="COM_MCPASK_EMBED_DOMAINS" description="COM_MCPASK_EMBED_DOMAINS_DESC" hint="https://bizform.example.com" />
+		<field name="published" type="radio" layout="joomla.form.field.radio.switcher" default="1" label="JPUBLISHED">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fields name="params">
+		<fieldset name="look" label="COM_MCPASK_EMBED_LOOK">
+			<field name="side" type="list" default="right" label="COM_MCPASK_EMBED_SIDE">
+				<option value="right">COM_MCPASK_EMBED_SIDE_RIGHT</option>
+				<option value="left">COM_MCPASK_EMBED_SIDE_LEFT</option>
+			</field>
+			<field name="pet" type="mcpaskpet" addfieldprefix="Gss\Component\Mcpask\Administrator\Field" default="" label="COM_MCPASK_EMBED_PET" description="COM_MCPASK_EMBED_PET_DESC" />
+			<field name="title" type="text" maxlength="100" filter="string" label="COM_MCPASK_EMBED_BOX_TITLE" description="COM_MCPASK_EMBED_BOX_TITLE_DESC" />
+			<field name="placeholder" type="text" maxlength="200" filter="string" label="COM_MCPASK_EMBED_PLACEHOLDER" description="COM_MCPASK_EMBED_BOX_TITLE_DESC" />
+			<field name="sources_shown" type="number" default="3" min="0" max="50" filter="integer" label="COM_MCPASK_EMBED_SOURCES_SHOWN" description="COM_MCPASK_EMBED_SOURCES_SHOWN_DESC" />
+			<field name="theme" type="list" default="site" label="COM_MCPASK_EMBED_THEME" description="COM_MCPASK_EMBED_THEME_DESC">
+				<option value="site">COM_MCPASK_EMBED_THEME_SITE</option>
+				<option value="own">COM_MCPASK_EMBED_THEME_OWN</option>
+			</field>
+			<field name="accent" type="color" default="" showon="theme:own" label="COM_MCPASK_EMBED_ACCENT" />
+		</fieldset>
+		<fieldset name="use" label="COM_MCPASK_EMBED_USE">
+			<field name="per_day" type="number" default="0" min="0" filter="integer" validate="number"
+				label="COM_MCPASK_EMBED_PER_DAY" description="COM_MCPASK_EMBED_PER_DAY_DESC" />
+			<field name="agents" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+				label="COM_MCPASK_EMBED_AGENTS" description="COM_MCPASK_EMBED_AGENTS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+		<fieldset name="who" label="COM_MCPASK_EMBED_WHO" description="COM_MCPASK_EMBED_WHO_DESC" addfieldprefix="Gss\Component\Mcpask\Administrator\Field">
+			<field name="login" type="radio" layout="joomla.form.field.radio.switcher" default="1"
+				label="COM_MCPASK_EMBED_LOGIN" description="COM_MCPASK_EMBED_LOGIN_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="login_server" type="mcpasklogin" default="0" showon="login:1"
+				label="COM_MCPASK_EMBED_LOGIN_SERVER" description="COM_MCPASK_EMBED_LOGIN_SERVER_DESC" />
+			<field name="product_tokens" type="radio" layout="joomla.form.field.radio.switcher" default="0"
+				label="COM_MCPASK_EMBED_PRODUCT_TOKENS" description="COM_MCPASK_EMBED_PRODUCT_TOKENS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>
