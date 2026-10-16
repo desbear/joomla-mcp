@@ -36,4 +36,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/*.zip --title "$GITHUB_REF_NAME" --notes-file CHANGELOG.md --prerelease
+          TITLE: MCP Server for Joomla
+        run: |
+          awk -v v="${GITHUB_REF_NAME#v}" '/^## /{if(f)exit; f=index($0,v)>0} f' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/*.zip --title "$TITLE $GITHUB_REF_NAME" --notes-file notes.md

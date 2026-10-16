@@ -24,7 +24,7 @@ Connect AI assistants — Claude, ChatGPT, Cursor, VS Code and any other [Model 
 
 ## Installation
 
-1. Download `pkg_mcp-x.y.z.zip` from the releases and install it in **System → Install → Extensions**.
+1. Download `pkg_mcp-x.y.z.zip` from the [latest release](https://github.com/desbear/joomla-mcp/releases/latest) (under **Assets**) and install it in **System → Install → Extensions**. Do not use GitHub's "Source code" zip: that is the repository, not an installable package.
 2. Open **Components → MCP Server**. The health check should be all green.
 3. Connect your assistant:
    - **claude.ai, Claude Desktop, mobile:** Settings → Connectors → Add custom connector → paste the endpoint URL shown on the dashboard (`https://your-site/api/index.php/v1/mcp`) → Connect → sign in → Allow.
@@ -189,6 +189,8 @@ GNU General Public License version 2 or later.
 ## 繁體中文
 
 MCP Server for Joomla 讓 Claude、ChatGPT、Cursor、VS Code 等支援 [Model Context Protocol](https://modelcontextprotocol.io) 的 AI 助理連接你的 Joomla 網站。你可以查詢內容統計、搜尋文章、撰寫草稿、設定標籤與自訂欄位，也可以發佈文章，所有操作都以你自己 Joomla 帳號的權限進行。
+
+**下載**：到 [最新版本頁](https://github.com/desbear/joomla-mcp/releases/latest)，在 **Assets** 下載 `pkg_mcp-x.y.z.zip`（不要下載「Source code」，那是原始碼，不能直接安裝）。
 
 **安裝**：在「系統 → 安裝 → 擴充套件」安裝 `pkg_mcp-x.y.z.zip`，接著開啟「元件 → MCP Server」確認健康檢查全部正常。
 
