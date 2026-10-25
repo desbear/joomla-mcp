@@ -63,6 +63,22 @@ class ConnectionsController extends BaseController
         $this->setRedirect(Route::_('index.php?option=com_mcp&view=connections', false), Text::_('COM_MCP_CONNECTIONS_ALL_REVOKED'));
     }
 
+    /**
+     * Every registered client that holds no live token, deleted (0.11.0): what was registered and
+     * never connected, or whose connections have all ended.
+     */
+    public function deleteClients(): void
+    {
+        $this->checkToken();
+        $this->assertAllowed();
+
+        $deleted = OAuthServer::create()->deleteUnusedClients();
+
+        $this->logAdminAction('admin:delete_clients', Text::sprintf('COM_MCP_LOG_AUDIT_DELETE_CLIENTS', $deleted));
+
+        $this->setRedirect(Route::_('index.php?option=com_mcp&view=connections', false), Text::plural('COM_MCP_CONNECTIONS_N_CLIENTS_DELETED', $deleted));
+    }
+
     private function assertAllowed(): void
     {
         // core.admin on com_mcp, not core.delete: revoking reaches into other users' connections

@@ -24,6 +24,15 @@ use Joomla\Utilities\IpHelper;
  */
 final class Logger
 {
+    /** Characters of a call's arguments kept, at most (0.11.0) */
+    private const ARGUMENTS_KEPT = 2000;
+
+    /** Days the address of a call is kept; the rate limit only looks back minutes (0.11.0) */
+    public const IP_DAYS = 7;
+
+    /** Argument names whose values are never kept */
+    private const SECRET_NAMES = '/pass|secret|token|api[_-]?key|auth|credential|cookie|session|private/i';
+
     public function __construct(private readonly ToolContext $context)
     {
     }
@@ -45,7 +54,8 @@ final class Logger
             $tool,
             $success ? 'success' : 'error',
             $message,
-            $params->get('log_arguments', 0) ? Server::json($arguments) : '',
+            // Kept only when asked for, with what opens an account or names a person hidden, and short (0.11.0)
+            $params->get('log_arguments', 0) ? mb_substr(Server::json(self::redact($arguments)), 0, self::ARGUMENTS_KEPT) : '',
             $durationMs,
             $server->getString('HTTP_USER_AGENT', '')
         );
@@ -53,7 +63,7 @@ final class Logger
         try {
             // Occasionally remove entries older than the retention period
             if (random_int(1, 100) === 1) {
-                $this->purge((int) $params->get('log_retention_days', 90));
+                self::forget($this->context->db, (int) $params->get('log_retention_days', 30));
             }
         } catch (\Throwable) {
             // Logging must never break a tool call
@@ -139,19 +149,58 @@ final class Logger
         }
     }
 
-    public function purge(int $days): void
+    /**
+     * Calls older than the retention period deleted, and the address of those older than a week
+     * cleared (0.11.0). 0 days keeps them all.
+     *
+     * @return  array{deleted: int, addresses: int}
+     */
+    public static function forget(DatabaseInterface $db, int $days): array
     {
-        if ($days <= 0) {
-            return;
+        $counts = ['deleted' => 0, 'addresses' => 0];
+
+        if ($days > 0) {
+            $limit = Factory::getDate('-' . $days . ' days')->toSql();
+            $db->setQuery($db->getQuery(true)->delete($db->quoteName('#__mcp_logs'))->where($db->quoteName('created') . ' < :limit')->bind(':limit', $limit))->execute();
+            $counts['deleted'] = $db->getAffectedRows();
         }
 
-        $db    = $this->context->db;
-        $limit = Factory::getDate('-' . $days . ' days')->toSql();
-        $query = $db->getQuery(true)
-            ->delete($db->quoteName('#__mcp_logs'))
-            ->where($db->quoteName('created') . ' < :limit')
-            ->bind(':limit', $limit);
+        $limit = Factory::getDate('-' . self::IP_DAYS . ' days')->toSql();
+        $db->setQuery(
+            $db->getQuery(true)->update($db->quoteName('#__mcp_logs'))->set($db->quoteName('ip') . ' = ' . $db->quote(''))
+                ->where($db->quoteName('created') . ' < :limit')->where($db->quoteName('ip') . ' <> ' . $db->quote(''))->bind(':limit', $limit)
+        )->execute();
+        $counts['addresses'] = $db->getAffectedRows();
 
-        $db->setQuery($query)->execute();
+        return $counts;
+    }
+
+    /**
+     * Arguments with secrets (by name) and e-mail addresses, telephone and card numbers hidden.
+     */
+    public static function redact(mixed $value, string $name = ''): mixed
+    {
+        if ($name !== '' && preg_match(self::SECRET_NAMES, $name)) {
+            return '[secret]';
+        }
+
+        if (\is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = self::redact($item, \is_string($key) ? $key : $name);
+            }
+
+            return $value;
+        }
+
+        if (!\is_string($value)) {
+            return $value;
+        }
+
+        return (string) preg_replace([
+            '/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/u',
+            '/(?<![\d\-])(?:\+\d{1,3}[\s\-]?|\(?0)\d{1,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,4}(?![\d\-])/u',
+            '/\b(?:\d[ \-]?){13,19}\b/u',
+            '/\b(bearer|basic)\s+[A-Za-z0-9._~+\/=\-]{12,}/iu',
+        ], ['[email]', '[phone]', '[number]', '$1 [secret]'], $value);
     }
 }

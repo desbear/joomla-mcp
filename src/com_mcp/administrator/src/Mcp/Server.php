@@ -24,7 +24,7 @@ final class Server
 {
     public const NAME = 'joomla-mcp';
 
-    public const VERSION = '0.9.2';
+    public const VERSION = '0.11.0';
 
     /** Supported protocol revisions, newest first. */
     public const PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];

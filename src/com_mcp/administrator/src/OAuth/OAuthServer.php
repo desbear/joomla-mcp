@@ -452,8 +452,9 @@ final class OAuthServer
         }
 
         if ($scheme === 'http' || $scheme === 'https') {
+            // Programs on the user's own computer (RFC 8252), unless the administrator allows none (0.11.0)
             if (\in_array($host, ['localhost', '127.0.0.1', '[::1]'], true)) {
-                return true;
+                return (bool) $this->params->get('oauth_loopback', 1);
             }
 
             return $scheme === 'https' && $this->hostAllowed($host);
@@ -986,27 +987,61 @@ final class OAuthServer
     }
 
     /**
-     * Remove expired codes, long expired tokens and registered clients that were never used.
+     * Remove expired codes, revoked and expired tokens (a day on: until then a revoked refresh
+     * token presented again still reveals a stolen family), clients registered and never used,
+     * and clients unused for longer than a refresh token lasts that hold no live token (0.11.0).
+     * Now and then on its own, every day from the scheduled task.
+     *
+     * @return  array{codes: int, tokens: int, clients: int}
      */
-    private function cleanup(): void
+    public function cleanup(bool $now = false): array
     {
-        if (random_int(1, 10) !== 1) {
-            return;
+        $counts = ['codes' => 0, 'tokens' => 0, 'clients' => 0];
+
+        if (!$now && random_int(1, 10) !== 1) {
+            return $counts;
         }
 
-        $now     = Factory::getDate()->toSql();
-        $old     = Factory::getDate('-30 days')->toSql();
-        $unused  = Factory::getDate('-1 day')->toSql();
         $db      = $this->db;
+        $current = Factory::getDate()->toSql();
+        $dayAgo  = Factory::getDate('-1 day')->toSql();
+        $stale   = Factory::getDate('-' . ((int) $this->params->get('oauth_refresh_days', 30) + 1) . ' days')->toSql();
 
-        $db->setQuery($db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_codes'))->where('expires < :now')->bind(':now', $now))->execute();
-        $db->setQuery($db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_tokens'))->where('expires < :old')->bind(':old', $old))->execute();
+        $db->setQuery($db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_codes'))->where('expires < :now')->bind(':now', $current))->execute();
+        $counts['codes'] = $db->getAffectedRows();
+
         $db->setQuery(
-            $db->getQuery(true)
-                ->delete($db->quoteName('#__mcp_oauth_clients'))
-                ->where('last_used IS NULL')
-                ->where('created < :unused')
-                ->bind(':unused', $unused)
+            $db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_tokens'))
+                ->where('(expires < :expired OR (revoked = 1 AND COALESCE(last_used, created) < :revoked))')
+                ->bind(':expired', $dayAgo)->bind(':revoked', $dayAgo)
         )->execute();
+        $counts['tokens'] = $db->getAffectedRows();
+
+        $live = $db->getQuery(true)->select('t.client_id')->from($db->quoteName('#__mcp_oauth_tokens', 't'))
+            ->where('t.revoked = 0')->where('t.expires > ' . $db->quote($current));
+
+        $db->setQuery(
+            $db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_clients'))
+                ->where('((last_used IS NULL AND created < :unused) OR (last_used IS NOT NULL AND last_used < :stale))')
+                ->where('client_id NOT IN (' . $live . ')')
+                ->bind(':unused', $dayAgo)->bind(':stale', $stale)
+        )->execute();
+        $counts['clients'] = $db->getAffectedRows();
+
+        return $counts;
+    }
+
+    /**
+     * Every registered client that holds no live token, deleted now (the administrator's button).
+     */
+    public function deleteUnusedClients(): int
+    {
+        $db   = $this->db;
+        $live = $db->getQuery(true)->select('t.client_id')->from($db->quoteName('#__mcp_oauth_tokens', 't'))
+            ->where('t.revoked = 0')->where('t.expires > ' . $db->quote(Factory::getDate()->toSql()));
+
+        $db->setQuery($db->getQuery(true)->delete($db->quoteName('#__mcp_oauth_clients'))->where('client_id NOT IN (' . $live . ')'))->execute();
+
+        return $db->getAffectedRows();
     }
 }

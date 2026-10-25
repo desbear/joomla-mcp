@@ -10,8 +10,10 @@
 
 namespace Gss\Component\Mcp\Administrator\Helper;
 
+use Gss\Component\Mcp\Administrator\Mcp\Maintenance;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Uri\Uri;
@@ -119,6 +121,21 @@ final class HealthCheck
             Text::_('COM_MCP_CHECK_TOKEN'),
             !$groupAllowed ? Text::_('COM_MCP_CHECK_TOKEN_GROUP') : ($hasToken ? Text::_('JENABLED') : Text::_('COM_MCP_CHECK_TOKEN_NONE')),
             !$groupAllowed ? Text::_('COM_MCP_CHECK_TOKEN_GROUP_FIX') : Text::_('COM_MCP_CHECK_TOKEN_FIX')
+        );
+
+        // Old records forgotten every day by the scheduled task (0.11.0)
+        try {
+            $last = Maintenance::last(Factory::getContainer()->get(DatabaseInterface::class));
+        } catch (\Throwable) {
+            $last = null;
+        }
+
+        $late     = !$last || $last['at'] < Factory::getDate('-2 days')->toSql();
+        $checks[] = self::check(
+            $late ? self::WARNING : self::OK,
+            Text::_('COM_MCP_CHECK_FORGET'),
+            $last ? Text::sprintf('COM_MCP_CHECK_FORGET_LAST', HTMLHelper::_('date', $last['at'], Text::_('DATE_FORMAT_LC5')), array_sum($last['counts'])) : Text::_('JNONE'),
+            Text::_('COM_MCP_CHECK_FORGET_FIX')
         );
 
         return $checks;

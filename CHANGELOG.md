@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.11.0
+
+### Connecting an assistant needs a recent sign-in
+- An assistant can only be connected (the OAuth consent page) within **12 hours of signing in through Joomla's own
+  login**: a password, an authentication plugin, or single sign-on through it. A session another extension made by
+  loading a user straight into it, without going through the login (the way a site's administrator account was
+  taken over through another extension's single sign-on), no longer counts: the user is signed out and asked to
+  sign in again. Options → OAuth → *Approve within (hours) of signing in*; 0 restores the old behaviour.
+- When an assistant is connected to an account that may sign in to the administrator, it is recorded in **User
+  Actions Log** and the Super Users who receive system e-mails are told (Options → OAuth → *E-mail Super Users*).
+- Clients registering with a redirect to localhost / 127.0.0.1 (programs on the user's computer) can be refused
+  (Options → OAuth → *Programs on the user's computer*).
+
+### Less kept, for less long
+- The activity log keeps 30 days by default (was 90); the network address of each call is cleared after 7 days.
+- With *Log arguments* on, arguments are kept with values named like passwords, secrets, tokens, keys or cookies
+  hidden, e-mail addresses, telephone and card numbers masked, and at most 2,000 characters.
+- Revoked and expired tokens are deleted a day on (expired ones were kept 30 days, revoked ones for ever), and
+  registered clients unused for longer than a refresh token lasts, with no live connection, are deleted.
+- **New scheduled task "MCP Server - Forget old records"** (plugin *Task - MCP Server*) does all this daily; the
+  dashboard says when it last ran.
+- Connections → **Delete unused clients** deletes at once every registered client without a live connection.
+
 ## 0.10.0
 
 - **AI Ask for Joomla is a project of its own** ([desbear/joomla-ai-ask](https://github.com/desbear/joomla-ai-ask)):

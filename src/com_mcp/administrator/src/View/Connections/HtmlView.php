@@ -52,6 +52,7 @@ class HtmlView extends BaseHtmlView
         if ($user->authorise('core.admin', 'com_mcp') && $this->items) {
             ToolbarHelper::custom('connections.revoke', 'unpublish', '', 'COM_MCP_CONNECTIONS_REVOKE', true);
             ToolbarHelper::custom('connections.revokeAll', 'delete', '', 'COM_MCP_CONNECTIONS_REVOKE_ALL', false);
+            ToolbarHelper::custom('connections.deleteClients', 'trash', '', 'COM_MCP_CONNECTIONS_DELETE_CLIENTS', false);
         }
 
         if ($user->authorise('core.admin', 'com_mcp') || $user->authorise('core.options', 'com_mcp')) {

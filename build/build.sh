@@ -28,5 +28,5 @@ build() {
 }
 
 build pkg_mcp src/pkg_mcp.xml src/script.php src/language \
-  com_mcp plg_webservices_mcp plg_system_mcp plg_mcp_content plg_mcp_stats plg_mcp_menus plg_mcp_modules plg_mcp_akeeba plg_mcp_flexicontent plg_mcp_easyblog plg_mcp_jreviews plg_mcp_jlexhelpful plg_mcp_media
+  com_mcp plg_webservices_mcp plg_system_mcp plg_mcp_content plg_mcp_stats plg_mcp_menus plg_mcp_modules plg_mcp_akeeba plg_mcp_flexicontent plg_mcp_easyblog plg_mcp_jreviews plg_mcp_jlexhelpful plg_mcp_media plg_task_mcp
 

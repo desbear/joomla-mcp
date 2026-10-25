@@ -5,7 +5,7 @@
 	<creationDate>2026-09</creationDate>
 	<copyright>(C) 2026 GSS</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE</license>
-	<version>0.10.0</version>
+	<version>0.11.0</version>
 	<description>PLG_MCP_JREVIEWS_XML_DESCRIPTION</description>
 	<namespace path="src">Gss\Plugin\Mcp\Jreviews</namespace>
 	<files>

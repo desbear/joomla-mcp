@@ -6,7 +6,7 @@
 	<creationDate>2026-09</creationDate>
 	<copyright>(C) 2026 GSS</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE</license>
-	<version>0.10.0</version>
+	<version>0.11.0</version>
 	<description>PKG_MCP_XML_DESCRIPTION</description>
 	<packager>GSS</packager>
 	<scriptfile>script.php</scriptfile>
@@ -25,6 +25,7 @@
 		<file type="plugin" id="jreviews" group="mcp">plg_mcp_jreviews.zip</file>
 		<file type="plugin" id="jlexhelpful" group="mcp">plg_mcp_jlexhelpful.zip</file>
 		<file type="plugin" id="media" group="mcp">plg_mcp_media.zip</file>
+		<file type="plugin" id="mcp" group="task">plg_task_mcp.zip</file>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/pkg_mcp.sys.ini</language>

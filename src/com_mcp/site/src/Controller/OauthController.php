@@ -10,14 +10,17 @@
 
 namespace Gss\Component\Mcp\Site\Controller;
 
+use Gss\Component\Mcp\Administrator\Mcp\Logger;
 use Gss\Component\Mcp\Administrator\OAuth\OAuthException;
 use Gss\Component\Mcp\Administrator\OAuth\OAuthServer;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
 use Joomla\Database\DatabaseInterface;
 use Joomla\Utilities\IpHelper;
 
@@ -70,6 +73,15 @@ class OauthController extends BaseController
             $this->render('error', ['message' => Text::_('COM_MCP_OAUTH_NO_PERMISSION'), 'logout' => true], 403);
         }
 
+        // Signed in through Joomla's own login, lately (0.11.0); otherwise once more, then back here
+        if (!$this->signedInLately()) {
+            Logger::security(Factory::getContainer()->get(DatabaseInterface::class), 'oauth:sign_in_again', 'Consent asked without a recent sign-in through Joomla\'s login; signed out and asked to sign in again', (int) $user->id, $this->input->server->getString('HTTP_USER_AGENT', ''));
+            $return = base64_encode(Uri::getInstance()->toString());
+            $this->app->logout((int) $user->id);
+            $this->app->enqueueMessage(Text::_('COM_MCP_OAUTH_SIGN_IN_AGAIN'), 'notice');
+            $this->app->redirect(Route::_('index.php?option=com_users&view=login&return=' . $return, false));
+        }
+
         $this->render('consent', [
             'request' => $request,
             'params'  => $query,
@@ -101,6 +113,10 @@ class OauthController extends BaseController
             $this->render('error', ['message' => Text::_('COM_MCP_OAUTH_NO_PERMISSION')], 403);
         }
 
+        if (!$this->signedInLately()) {
+            $this->render('error', ['message' => Text::_('COM_MCP_OAUTH_SIGN_IN_AGAIN'), 'logout' => true], 403);
+        }
+
         if ($this->input->post->get('decision', '', 'cmd') !== 'allow') {
             $this->app->redirect($server->redirectUrl($request['redirect_uri'], ['error' => 'access_denied', 'state' => $request['state']]));
         }
@@ -111,8 +127,86 @@ class OauthController extends BaseController
         $code   = $server->issueCode($request, $user, $scopes);
 
         $this->audit($request, $scopes);
+        $this->tell($user, $request, $scopes);
 
         $this->app->redirect($server->redirectUrl($request['redirect_uri'], ['code' => $code, 'state' => $request['state']]));
+    }
+
+    /**
+     * Whether the user signed in through Joomla's own login within the hours the options allow
+     * (0.11.0; 0 hours: any session will do, as before). A session an extension made by loading a
+     * user straight into it never counts: that is how a site's account was taken over through
+     * another extension's single sign-on, and an assistant connected then keeps its access after
+     * the session ends.
+     */
+    private function signedInLately(): bool
+    {
+        $hours = (int) ComponentHelper::getParams('com_mcp')->get('oauth_login_hours', 12);
+
+        if ($hours <= 0) {
+            return true;
+        }
+
+        $at = (int) $this->app->getSession()->get('mcp.signed_in', 0);
+
+        return $at > 0 && $at >= time() - $hours * 3600;
+    }
+
+    /**
+     * An assistant connected to an account that may manage the site (0.11.0): recorded in Joomla's
+     * user actions log, and the Super Users are told by e-mail (unless the options say not to).
+     */
+    private function tell(User $user, array $request, array $scopes): void
+    {
+        if (!$user->authorise('core.login.admin') && !$user->authorise('core.admin')) {
+            return;
+        }
+
+        $client = (string) $request['client']->client_name ?: (string) $request['client']->client_id;
+        $ip     = (string) IpHelper::getIp();
+
+        try {
+            $this->app->getLanguage()->load('com_mcp', JPATH_ADMINISTRATOR);
+            $model = $this->app->bootComponent('com_actionlogs')->getMVCFactory()->createModel('Actionlog', 'Administrator', ['ignore_request' => true]);
+            $model->addLog([[
+                'action'      => 'mcp_connected',
+                'title'       => $client,
+                'type'        => 'COM_MCP',
+                'id'          => (int) $user->id,
+                'userid'      => (int) $user->id,
+                'username'    => $user->username,
+                'accountlink' => 'index.php?option=com_users&task=user.edit&id=' . (int) $user->id,
+                'client'      => $client,
+                'scopes'      => implode(' ', $scopes),
+            ]], 'COM_MCP_ACTIONLOG_CONNECTED', 'com_mcp', (int) $user->id);
+        } catch (\Throwable) {
+            // The user actions log is optional
+        }
+
+        if (!ComponentHelper::getParams('com_mcp')->get('oauth_notify', 1) || !$this->app->get('mailonline', 1)) {
+            return;
+        }
+
+        try {
+            $db    = Factory::getContainer()->get(DatabaseInterface::class);
+            $to    = $db->setQuery(
+                $db->getQuery(true)->select('u.email')->from($db->quoteName('#__users', 'u'))
+                    ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), 'm.user_id = u.id')
+                    ->where('m.group_id = 8')->where('u.block = 0')->where('u.sendEmail = 1')
+            )->loadColumn();
+
+            if (!$to) {
+                return;
+            }
+
+            $mailer = Factory::getMailer();
+            $mailer->addRecipient(array_values(array_unique($to)));
+            $mailer->setSubject(Text::sprintf('COM_MCP_NOTIFY_CONNECTED_SUBJECT', $this->app->get('sitename'), $user->username));
+            $mailer->setBody(Text::sprintf('COM_MCP_NOTIFY_CONNECTED_BODY', $user->name, $user->username, $client, implode(' ', $scopes), $ip, Factory::getDate()->format('Y-m-d H:i:s') . ' UTC', rtrim(Uri::root(), '/') . '/administrator/index.php?option=com_mcp&view=connections'));
+            $mailer->Send();
+        } catch (\Throwable) {
+            // Mail that cannot be sent must not undo the connection
+        }
     }
 
     /**

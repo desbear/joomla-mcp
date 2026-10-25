@@ -31,7 +31,25 @@ final class Mcp extends CMSPlugin implements SubscriberInterface
 {
     public static function getSubscribedEvents(): array
     {
-        return ['onAfterInitialise' => 'onAfterInitialise'];
+        return ['onAfterInitialise' => 'onAfterInitialise', 'onUserAfterLogin' => 'onUserAfterLogin'];
+    }
+
+    /** When the session's user signed in through Joomla's own login, for the OAuth consent page */
+    public const SIGNED_IN = 'mcp.signed_in';
+
+    /**
+     * Joomla's login (a password, an authentication plugin, single sign-on through it, a remembered
+     * login) ends here; a session made otherwise, by an extension that loads a user straight into
+     * it, does not. MCP Server only lets an assistant be connected within a while of such a sign-in
+     * (0.11.0).
+     */
+    public function onUserAfterLogin(): void
+    {
+        try {
+            $this->getApplication()->getSession()->set(self::SIGNED_IN, time());
+        } catch (\Throwable) {
+            // No session (the API): nothing to remember
+        }
     }
 
     public function onAfterInitialise(): void
